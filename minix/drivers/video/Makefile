@@ -1,7 +1,7 @@
 .include <bsd.own.mk>
 
-.if ${MACHINE_ARCH} == "earm"
 SUBDIR+=	fb
+.if ${MACHINE_ARCH} == "earm"
 SUBDIR+=	tda19988
 .endif # ${MACHINE_ARCH} == "earm"
 

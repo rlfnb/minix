@@ -17,7 +17,6 @@
 ./service/bmp085                                        minix-base
 ./service/cat24c256                                     minix-base
 ./service/emmc                                          minix-base
-./service/fb                                            minix-base
 ./service/gpio                                          minix-base
 ./service/i2c                                           minix-base
 ./service/lan8710a                                      minix-base

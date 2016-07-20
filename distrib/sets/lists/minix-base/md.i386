@@ -23,6 +23,7 @@
 ./etc/system.conf.d/printer                             minix-base
 ./etc/system.conf.d/rtl8139                             minix-base
 ./etc/system.conf.d/rtl8169                             minix-base
+./etc/system.conf.d/smbus                               minix-base
 ./etc/system.conf.d/ti1225                              minix-base
 ./etc/system.conf.d/trident                             minix-base
 ./etc/system.conf.d/vbfs                                minix-base
@@ -58,6 +59,7 @@
 ./service/rtl8139                                       minix-base
 ./service/rtl8169                                       minix-base
 ./service/sb16                                          minix-base
+./service/smbus                                         minix-base
 ./service/ti1225                                        minix-base
 ./service/trident                                       minix-base
 ./service/vbfs                                          minix-base

@@ -52,7 +52,9 @@ Interface to the reincarnation server
 /* Common definitions. */
 #define RS_NR_CONTROL		 8
 #define RS_NR_PCI_DEVICE	32
+#define RS_NR_USB_DEVICE	32
 #define RS_NR_PCI_CLASS		 4
+#define RS_NR_USB_CLASS		 4
 #define RS_MAX_LABEL_LEN	16
 #define RS_MAX_IPCF_STR_LEN	 (RS_MAX_LABEL_LEN+12)
 #define RS_MAX_IPC_FILTERS	 4
@@ -74,11 +76,22 @@ struct rs_pci_id {
 	u16_t sub_vid;
 	u16_t sub_did;
 };
+
+struct rs_usb_id {
+	u16_t vid;
+	u16_t did;
+};
+
 #define NO_SUB_VID	0xffff
 #define NO_SUB_DID	0xffff
 
 struct rs_pci_class {
 	u32_t pciclass;
+	u32_t mask;
+};
+
+struct rs_usb_class {
+	u32_t class;
 	u32_t mask;
 };
 
@@ -122,9 +135,13 @@ struct rs_start
 	int rss_nr_io;
 	struct { unsigned base; unsigned len; } rss_io[RSS_NR_IO];
 	int rss_nr_pci_id;
+	int rss_nr_usb_id;
 	struct rs_pci_id rss_pci_id[RS_NR_PCI_DEVICE];
+	struct rs_usb_id rss_usb_id[RS_NR_USB_DEVICE];
 	int rss_nr_pci_class;
+	int rss_nr_usb_class;
 	struct rs_pci_class rss_pci_class[RS_NR_PCI_CLASS];
+	struct rs_usb_class rss_usb_class[RS_NR_USB_CLASS];
 	bitchunk_t rss_system[SYS_CALL_MASK_SIZE];
 	struct rss_label rss_label;
 	struct rss_label rss_trg_label;

@@ -9,6 +9,7 @@
 #define KW_IRQ		"irq"
 #define KW_IO		"io"
 #define KW_PCI		"pci"
+#define KW_USB		"usb"
 #define KW_DEVICE	"device"
 #define KW_CLASS	"class"
 #define KW_SYSTEM	"system"

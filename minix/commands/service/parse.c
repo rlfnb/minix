@@ -519,6 +519,117 @@ static void do_io(config_t *cpe, struct rs_start *rs_start)
 	}
 }
 
+static void do_usb_device(config_t * cpe, struct rs_start *rs_start)
+{
+	u16_t vid, did, sub_vid, sub_did;
+	char *check, *check2;
+
+	/* Process a list of USB device IDs */
+	for (; cpe; cpe = cpe->next)
+	{
+		if (cpe->flags & CFG_SUBLIST)
+		{
+			fatal("do_usb_device: unexpected sublist at %s:%d", cpe->file, cpe->line);
+		}
+		if (cpe->flags & CFG_STRING)
+		{
+			fatal("do_usb_device: unexpected string at %s:%d", cpe->file, cpe->line);
+		}
+		vid = strtoul(cpe->word, &check, 0x10);
+		if (check[0] != ':' && /* LEGACY: */check[0] != '/')
+		{
+			fatal("do_usb_device: bad ID '%s' at %s:%d", cpe->word, cpe->file, cpe->line);
+		}
+		did = strtoul(check + 1, &check, 0x10);
+		if (check[0] != '\0')
+		{
+			fatal("do_usb_device: bad ID '%s' at %s:%d", cpe->word, cpe->file, cpe->line);
+		}
+		if (rs_start->rss_nr_usb_id >= RS_NR_USB_DEVICE)
+		{
+			fatal("do_usb_device: too many device IDs (max %d)", RS_NR_USB_DEVICE);
+		}
+		rs_start->rss_usb_id[rs_start->rss_nr_usb_id].vid = vid;
+		rs_start->rss_usb_id[rs_start->rss_nr_usb_id].did = did;
+		rs_start->rss_nr_usb_id++;
+	}
+}
+
+static void do_usb_class(config_t * cpe, struct rs_start *rs_start)
+{
+	u8_t baseclass, subclass, protocol;
+	u32_t class_id, mask;
+	char *check;
+
+	/* Process a list of USB device class IDs */
+	for (; cpe; cpe = cpe->next)
+	{
+		if (cpe->flags & CFG_SUBLIST)
+		{
+			fatal("do_usb_device: unexpected sublist at %s:%d", cpe->file, cpe->line);
+		}
+		if (cpe->flags & CFG_STRING)
+		{
+			fatal("do_usb_device: unexpected string at %s:%d", cpe->file, cpe->line);
+		}
+
+		baseclass = strtoul(cpe->word, &check, 0x10);
+		subclass = 0;
+		protocol = 0;
+		mask = 0xff0000;
+		if (check[0] == '/')
+		{
+			subclass = strtoul(check + 1, &check, 0x10);
+			mask = 0xffff00;
+			if (check[0] == '/')
+			{
+				protocol = strtoul(check + 1, &check, 0x10);
+				mask = 0xffffff;
+			}
+		}
+
+		if (check[0] != '\0')
+		{
+			fatal("do_usb_class: bad class ID '%s' at %s:%d", cpe->word, cpe->file, cpe->line);
+		}
+		class_id = (baseclass << 16) | (subclass << 8) | protocol;
+		if (rs_start->rss_nr_usb_class >= RS_NR_USB_CLASS)
+		{
+			fatal("do_usb_class: too many class IDs (max %d)", RS_NR_USB_CLASS);
+		}
+		rs_start->rss_usb_class[rs_start->rss_nr_usb_class].class = class_id;
+		rs_start->rss_usb_class[rs_start->rss_nr_usb_class].mask = mask;
+		rs_start->rss_nr_usb_class++;
+	}
+}
+
+static void do_usb(config_t * cpe, struct rs_start *rs_start)
+{
+	if (cpe == NULL)
+		return; /* Empty USB statement */
+
+	if (cpe->flags & CFG_SUBLIST)
+	{
+		fatal("do_usb: unexpected sublist at %s:%d", cpe->file, cpe->line);
+	}
+	if (cpe->flags & CFG_STRING)
+	{
+		fatal("do_usb: unexpected string at %s:%d", cpe->file, cpe->line);
+	}
+
+	if (strcmp(cpe->word, KW_DEVICE) == 0)
+	{
+		do_usb_device(cpe->next, rs_start);
+		return;
+	}
+	if (strcmp(cpe->word, KW_CLASS) == 0)
+	{
+		do_usb_class(cpe->next, rs_start);
+		return;
+	}
+	fatal("do_usb: unexpected word '%s' at %s:%d", cpe->word, cpe->file, cpe->line);
+}
+
 static void do_pci_device(config_t *cpe, struct rs_start *rs_start)
 {
 	u16_t vid, did, sub_vid, sub_did;
@@ -1036,6 +1147,11 @@ static void do_service(config_t *cpe, config_t *config, struct rs_config *rs_con
 		if (strcmp(cpe->word, KW_PCI) == 0)
 		{
 			do_pci(cpe->next, rs_start);
+			continue;
+		}
+		if (strcmp(cpe->word, KW_USB) == 0)
+		{
+			do_usb(cpe->next, rs_start);
 			continue;
 		}
 		if (strcmp(cpe->word, KW_SYSTEM) == 0)

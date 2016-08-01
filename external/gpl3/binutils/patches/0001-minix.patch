@@ -10,13 +10,20 @@ diff -rNU3 dist.nbsd/bfd/config.bfd dist/bfd/config.bfd
      targ_defvec=bfd_elf32_littlearm_vec
      targ_selvecs=bfd_elf32_bigarm_vec
      ;;
-@@ -711,6 +711,9 @@
+@@ -711,6 +711,16 @@
    i[3-7]86-none-*)
      targ_defvec=i386coff_vec
      ;;
 +  i[3-7]86-*-minix)
 +    targ_defvec=bfd_elf32_i386_minix_vec
 +    ;;
++#ifdef BFD64
++  x86_64-*-minix)
++    targ_defvec=bfd_elf32_x86_64_minix_vec
++    targ_selvecs="bfd_elf32_i386_minix_vec bfd_elf64_x86_64_minix_vec"
++    want64=true
++    ;;
++#endif
    i[3-7]86-*-aout* | i[3-7]86*-*-vsta*)
      targ_defvec=i386aout_vec
      ;;
@@ -166,12 +173,14 @@ diff -rNU3 dist.nbsd/ld/configure.tgt dist/ld/configure.tgt
  arm*-*-symbianelf*)     targ_emul=armsymbian;;
  arm-*-kaos*)		targ_emul=armelf ;;
  arm9e-*-elf)		targ_emul=armelf ;;
-@@ -208,6 +210,8 @@
+@@ -208,6 +210,10 @@
  i[3-7]86-*-bsd386)	targ_emul=i386bsd ;;
  i[3-7]86-*-bsdi*)	targ_emul=i386bsd ;;
  i[3-7]86-*-aout)	targ_emul=i386aout ;;
 +i[3-7]86-*-minix)	targ_emul=elf_i386_minix
 +			targ_extra_emuls="elf_i386" ;;
++x86_64-*-minix)         targ_emul=elf_x86_64_minix
++                        targ_extra_emuls="elf32_x86_64 elf_i386" ;;
  i[3-7]86-*-linux*aout*)	targ_emul=i386linux
  			targ_extra_emuls=elf_i386
  			tdir_elf_i386=`echo ${targ_alias} | sed -e 's/aout//'` ;;

@@ -16,7 +16,12 @@ static phys_bytes kern_phys_start = (phys_bytes) &_kern_phys_base;
 static phys_bytes kern_kernlen = (phys_bytes) &_kern_size;
 
 /* page directory we can use to map things */
-static u32_t pagedir[1024]  __aligned(4096);
+#ifndef PAE
+static pg_tbl_addr_t pagedir[1024]  __aligned(4096);
+#else
+static uint64_t page_dir_ptr_tab[4] __aligned(32);
+static pg_tbl_addr_t pagedir[512] __aligned(4096);
+#endif
 
 void print_memmap(kinfo_t *cbi)
 {
@@ -120,11 +125,15 @@ void add_memmap(kinfo_t *cbi, u64_t addr, u64_t len)
         panic("no available memmap slot");
 }
 
-u32_t *alloc_pagetable(phys_bytes *ph)
+pg_tbl_addr_t *alloc_pagetable(phys_bytes *ph)
 {
-	u32_t *ret;
 #define PG_PAGETABLES 6
+	pg_tbl_addr_t *ret;
+#ifndef PAE
 	static u32_t pagetables[PG_PAGETABLES][1024]  __aligned(4096);
+#else
+	static u64_t pagetables[PG_PAGETABLES][512]  __aligned(4096);
+#endif
 	static int pt_inuse = 0;
 	if(pt_inuse >= PG_PAGETABLES) panic("no more pagetables");
 	assert(sizeof(pagetables[pt_inuse]) == I386_PAGE_SIZE);
@@ -204,12 +213,13 @@ int pg_mapkernel(void)
 void vm_enable_paging(void)
 {
         u32_t cr0, cr4;
-        int pgeok;
+        int pgeok, paeok;
 
         pgeok = _cpufeature(_CPUF_I386_PGE);
-
+	paeok = 0;
 #ifdef PAE
-	if(_cpufeature(_CPUF_I386_PAE) == 0)
+	paeok = _cpufeature(_CPUF_I386_PAE);
+	if(paeok == 0)
 		panic("kernel built with PAE support, CPU seems to lack PAE support?\n");
 #endif
 
@@ -240,15 +250,22 @@ void vm_enable_paging(void)
         /* May we enable these features? */
         if(pgeok)
                 cr4 |= I386_CR4_PGE;
-
+	if(paeok)
+		cr4 |= I386_CR4_PAE;
         write_cr4(cr4);
 }
 
 phys_bytes pg_load(void)
 {
-	phys_bytes phpagedir = vir2phys(pagedir);
+#ifdef PAE
+	phys_bytes phpdpt = vir2phys(page_dir_ptr_tab);
+        write_cr3(phpdpt);
+	return phpdpt;
+#else
+        phys_bytes phpagedir = vir2phys(pagedir);
         write_cr3(phpagedir);
 	return phpagedir;
+#endif
 }
 
 void pg_clear(void)
@@ -264,11 +281,12 @@ phys_bytes pg_rounddown(phys_bytes b)
 	return b  - o;
 }
 
+// TODO
 void pg_map(phys_bytes phys, vir_bytes vaddr, vir_bytes vaddr_end,
 	kinfo_t *cbi)
 {
 	static int mapped_pde = -1;
-	static u32_t *pt = NULL;
+	static pg_tbl_addr_t *pt = NULL;
 	int pde, pte;
 
 	assert(kernel_may_alloc);
@@ -309,7 +327,7 @@ void pg_map(phys_bytes phys, vir_bytes vaddr, vir_bytes vaddr_end,
 	}
 }
 
-void pg_info(reg_t *pagedir_ph, u32_t **pagedir_v)
+void pg_info(reg_t *pagedir_ph, pg_tbl_addr_t **pagedir_v)
 {
 	*pagedir_ph = vir2phys(pagedir);
 	*pagedir_v = pagedir;

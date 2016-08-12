@@ -7,6 +7,12 @@
 #include <machine/fpu.h>
 #include <sys/cdefs.h>
 
+#ifdef PAE
+typedef uint64_t pg_tbl_addr_t;
+#else
+typedef uint32_t pg_tbl_addr_t;
+#endif
+
 struct segdesc_s {		/* segment descriptor for protected mode */
   u16_t limit_low;
   u16_t base_low;
@@ -30,10 +36,10 @@ struct desctableptr_s {
 } __attribute__((packed));
 
 typedef struct segframe {
-	reg_t	p_cr3;		/* page table root */
-	u32_t	*p_cr3_v;
-	char	*fpu_state;
-	int	p_kern_trap_style;
+	reg_t		p_cr3;		/* page table root */
+	pg_tbl_addr_t	*p_cr3_v;
+	char		*fpu_state;
+	int		p_kern_trap_style;
 } segframe_t;
 
 struct cpu_info {

@@ -39,7 +39,7 @@ void mem_clear_mapcache(void)
 	for(i = 0; i < nfreepdes; i++) {
 		struct proc *ptproc = get_cpulocal_var(ptproc);
 		int pde = freepdes[i];
-		u32_t *ptv;
+		pg_tbl_addr_t *ptv;
 		assert(ptproc);
 		ptv = ptproc->p_seg.p_cr3_v;
 		assert(ptv);

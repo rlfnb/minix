@@ -30,8 +30,14 @@ i386/vm.h
 #define I386_VM_PTAVAIL2 (1L<<10)	/* Available for use. */
 #define I386_VM_PTAVAIL3 (1L<<11)	/* Available for use. */
 
+#ifndef PAE
 #define I386_VM_PT_ENT_SIZE	4	/* Size of a page table entry */
 #define I386_VM_DIR_ENTRIES	1024	/* Number of entries in a page dir */
+#else
+#define I386_VM_PT_ENT_SIZE     8       /* Size of a page table entry */
+#define I386_VM_DIR_ENTRIES     512    /* Number of entries in a page dir */
+#endif
+
 #define I386_VM_DIR_ENT_SHIFT	22	/* Shift to get entry in page dir. */
 #define I386_VM_PT_ENT_SHIFT	12	/* Shift to get entry in page table */
 #define I386_VM_PT_ENT_MASK	0x3FF	/* Mask to get entry in page table */

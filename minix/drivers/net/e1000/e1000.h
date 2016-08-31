@@ -34,9 +34,6 @@
 /** Size of each I/O buffer per descriptor. */
 #define E1000_IOBUF_SIZE 2048
 
-/** Debug verbosity. */
-#define E1000_VERBOSE 0
-
 /** MAC address override variable. */
 #define E1000_ENVVAR "E1000ETH"
 
@@ -57,17 +54,6 @@
  * @name Macros.
  * @{
  */
-
-/**
- * @brief Print a debug message.
- * @param level Debug verbosity level.
- * @param args Arguments to printf().
- */
-#define E1000_DEBUG(level, args) \
-	if ((level) <= E1000_VERBOSE) \
-	{ \
-	    printf args; \
-	} \
 
 /**
  * Read a byte from flash memory.

@@ -1,6 +1,7 @@
 /* A device driver for Intel Pro/1000 Gigabit Ethernet Controllers. */
 
 #include <minix/drivers.h>
+#include <minix/log.h>
 #include <minix/netdriver.h>
 #include <machine/pci.h>
 #include <sys/mman.h>
@@ -29,6 +30,8 @@ static int eeprom_ich_cycle(e1000_t *e, u32_t timeout);
 
 static int e1000_instance;
 static e1000_t e1000_state;
+
+static struct log log = {.log_level = LEVEL_INFO, .log_func = default_log };
 
 static const struct netdriver e1000_table = {
 	.ndr_init = e1000_init,
@@ -112,6 +115,7 @@ e1000_map_flash(e1000_t * e, int devind, int did)
 	/* 82566/82567/82562V series support mapping 4kB of flash memory. */
 	case E1000_DEV_ID_ICH10_D_BM_LM:
 	case E1000_DEV_ID_ICH10_R_BM_LF:
+	case E1000_DEV_ID_82579_LM:
 		flash_size = 0x1000;
 		break;
 	}
@@ -140,7 +144,7 @@ e1000_probe(e1000_t * e, int skip)
 	u32_t base, size;
 	char *dname;
 
-	E1000_DEBUG(3, ("%s: probe()\n", e->name));
+	log_info(&log, "%s: probe()\n", e->name);
 
 	/* Initialize communication to the PCI driver. */
 	pci_init();
@@ -151,8 +155,8 @@ e1000_probe(e1000_t * e, int skip)
 
 	/* Loop devices on the PCI bus. */
 	while (skip--) {
-		E1000_DEBUG(3, ("%s: probe() devind %d vid 0x%x did 0x%x\n",
-		    e->name, devind, vid, did));
+		log_info(&log, "%s: probe() devind %d vid 0x%x did 0x%x\n",
+		    e->name, devind, vid, did);
 
 		if (!(r = pci_next_dev(&devind, &vid, &did)))
 			return FALSE;
@@ -183,8 +187,8 @@ e1000_probe(e1000_t * e, int skip)
 	/* Inform the user about the new card. */
 	if (!(dname = pci_dev_name(vid, did)))
 		dname = "Intel Pro/1000 Gigabit Ethernet Card";
-	E1000_DEBUG(1, ("%s: %s (%04x/%04x) at %s\n",
-	    e->name, dname, vid, did, pci_slot_name(devind)));
+	log_info(&log, "%s: %s (%04x/%04x) at %s\n",
+	    e->name, dname, vid, did, pci_slot_name(devind));
 
 	/* Reserve PCI resources found. */
 	pci_reserve(devind);
@@ -210,9 +214,9 @@ e1000_probe(e1000_t * e, int skip)
 
 	/* Output debug information. */
 	status = e1000_reg_read(e, E1000_REG_STATUS);
-	E1000_DEBUG(3, ("%s: MEM at %p, IRQ %d\n", e->name, e->regs, e->irq));
-	E1000_DEBUG(3, ("%s: link %s, %s duplex\n", e->name,
-	    status & 3 ? "up"   : "down", status & 1 ? "full" : "half"));
+	log_debug(&log, "%s: MEM at %p, IRQ %d\n", e->name, e->regs, e->irq);
+	log_debug(&log, "%s: link %s, %s duplex\n", e->name,
+	    status & 3 ? "up"   : "down", status & 1 ? "full" : "half");
 
 	return TRUE;
 }
@@ -268,9 +272,9 @@ e1000_init_addr(e1000_t * e, ether_addr_t * addr)
 	e1000_reg_set(e, E1000_REG_RAH, E1000_REG_RAH_AV);
 	e1000_reg_set(e, E1000_REG_RCTL, E1000_REG_RCTL_MPE);
 
-	E1000_DEBUG(3, ("%s: Ethernet Address %x:%x:%x:%x:%x:%x\n", e->name,
+	log_debug(&log, "%s: Ethernet Address %x:%x:%x:%x:%x:%x\n", e->name,
 	    addr->ea_addr[0], addr->ea_addr[1], addr->ea_addr[2],
-	    addr->ea_addr[3], addr->ea_addr[4], addr->ea_addr[5]));
+	    addr->ea_addr[3], addr->ea_addr[4], addr->ea_addr[5]);
 }
 
 /*
@@ -363,6 +367,7 @@ e1000_init_hw(e1000_t * e, ether_addr_t * addr)
 	if ((r = sys_irqenable(&e->irq_hook)) != OK)
 		panic("sys_irqenable failed: %d", r);
 
+	log_debug(&log, "PCI IRQ policy set and enabled\n");
 	/* Reset hardware. */
 	e1000_reset_hw(e);
 
@@ -390,6 +395,8 @@ e1000_init_hw(e1000_t * e, ether_addr_t * addr)
 	for (i = 0; i < 64; i++)
 		e1000_reg_write(e, E1000_REG_CRCERRS + i * 4, 0);
 
+	log_debug(&log, "registers initialized\n");
+
 	/* Acquire MAC address and set up RX/TX buffers. */
 	e1000_init_addr(e, addr);
 	e1000_init_buf(e);
@@ -397,6 +404,8 @@ e1000_init_hw(e1000_t * e, ether_addr_t * addr)
 	/* Enable interrupts. */
 	e1000_reg_set(e, E1000_REG_IMS, E1000_REG_IMS_LSC | E1000_REG_IMS_RXO |
 	    E1000_REG_IMS_RXT | E1000_REG_IMS_TXQE | E1000_REG_IMS_TXDW);
+
+	log_debug(&log, "interrupts enabled in NIC register\n");
 }
 
 /*
@@ -463,7 +472,7 @@ e1000_recv(struct netdriver_data * data, size_t max)
 	head = e1000_reg_read(e, E1000_REG_RDH);
 	tail = e1000_reg_read(e, E1000_REG_RDT);
 
-	E1000_DEBUG(4, ("%s: head=%u, tail=%u\n", e->name, head, tail));
+	log_debug(&log, "%s: head=%u, tail=%u\n", e->name, head, tail);
 
 	if (head == tail)
 		return SUSPEND;
@@ -513,7 +522,7 @@ e1000_stat(eth_stat_t * stat)
 {
 	e1000_t *e = &e1000_state;
 
-	E1000_DEBUG(3, ("e1000: stat()\n"));
+	log_debug(&log, "e1000: stat()\n");
 
 	stat->ets_recvErr	= e1000_reg_read(e, E1000_REG_RXERRC);
 	stat->ets_sendErr	= 0;
@@ -539,7 +548,7 @@ static void
 e1000_link_changed(e1000_t * e)
 {
 
-	E1000_DEBUG(4, ("%s: link_changed()\n", e->name));
+	log_debug(&log, "%s: link_changed()\n", e->name);
 }
 
 /*
@@ -551,7 +560,7 @@ e1000_intr(unsigned int __unused mask)
 	e1000_t *e;
 	u32_t cause;
 
-	E1000_DEBUG(3, ("e1000: interrupt\n"));
+	log_debug(&log, "e1000: interrupt\n");
 
 	e = &e1000_state;
 
@@ -582,7 +591,7 @@ e1000_stop(void)
 
 	e = &e1000_state;
 
-	E1000_DEBUG(3, ("%s: stop()\n", e->name));
+	log_debug(&log, "%s: stop()\n", e->name);
 
 	e1000_reset_hw(e);
 }
@@ -682,8 +691,8 @@ eeprom_ich_init(e1000_t * e)
 
 	/* Check if the flash descriptor is valid */
 	if (hsfsts.hsf_status.fldesvalid == 0) {
-		E1000_DEBUG(3, ("Flash descriptor invalid. "
-		    "SW Sequencing must be used."));
+		log_debug(&log, "Flash descriptor invalid. "
+		    "SW Sequencing must be used.");
 		return ret_val;
 	}
 
@@ -732,8 +741,8 @@ eeprom_ich_init(e1000_t * e)
 			E1000_WRITE_FLASH_REG16(e, ICH_FLASH_HSFSTS,
 			    hsfsts.regval);
 		} else {
-			E1000_DEBUG(3,
-			    ("Flash controller busy, cannot get access"));
+			log_debug(&log,
+			    "Flash controller busy, cannot get access");
 		}
 	}
 
@@ -751,7 +760,7 @@ eeprom_ich_cycle(e1000_t * e, u32_t timeout)
 	int ret_val = -1;
 	u32_t i = 0;
 
-	E1000_DEBUG(3, ("e1000_flash_cycle_ich8lan"));
+	log_debug(&log, "e1000_flash_cycle_ich8lan");
 
 	/* Start a cycle by writing 1 in Flash Cycle Go in Hw Flash Control */
 	hsflctl.regval = E1000_READ_FLASH_REG16(e, ICH_FLASH_HSFCTL);
@@ -786,7 +795,7 @@ eeprom_ich(e1000_t * e, int reg)
 	u8_t count = 0;
 	u16_t data = 0;
 
-	E1000_DEBUG(3, ("e1000_read_flash_data_ich8lan"));
+	log_debug(&log, "e1000_read_flash_data_ich8lan");
 
 	if (reg > ICH_FLASH_LINEAR_ADDR_MASK)
 		return data;
@@ -836,8 +845,8 @@ eeprom_ich(e1000_t * e, int reg)
 				/* Repeat for some time before giving up. */
 				continue;
 			} else if (hsfsts.hsf_status.flcdone == 0) {
-				E1000_DEBUG(3, ("Timeout error - flash cycle "
-				    "did not complete."));
+				log_debug(&log, "Timeout error - flash cycle "
+				    "did not complete.");
 				break;
 			}
 		}

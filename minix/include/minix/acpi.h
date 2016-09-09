@@ -3,6 +3,8 @@
 
 #define ACPI_REQ_GET_IRQ			1
 #define ACPI_REQ_MAP_BRIDGE			2
+#define ACPI_REQ_GET_TABLE_HEADER		3
+#define ACPI_REQ_GET_TABLE			4
 
 struct acpi_request_hdr {
 	endpoint_t 	m_source; /* message header */
@@ -43,6 +45,24 @@ struct acpi_map_bridge_resp {
 	u32_t		__padding[7];
 };
 
+struct acpi_get_table_req {
+	struct acpi_request_hdr hdr;
+	char	signature[4];
+	u32_t 	instance;
+    size_t	length;
+    cp_grant_id_t grant;
+};
+
+struct acpi_get_table_resp {
+	endpoint_t		m_source; /* message header */
+	int				err;
+	size_t 			length;
+	u8_t			_pad[40];
+};
+
 int acpi_init(void);
 int acpi_get_irq(unsigned bus, unsigned dev, unsigned pin);
+int acpi_get_table_header(char signature[4], u32_t instance, vir_bytes * buffer);
+int acpi_get_table(char signature[4], u32_t instance, vir_bytes * buffer, size_t length);
 void acpi_map_bridge(unsigned int pbnr, unsigned int dev, unsigned int sbnr);
+

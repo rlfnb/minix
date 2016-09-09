@@ -18,6 +18,37 @@ struct pci_acl
 	struct rs_pci acl;
 };
 
+struct acpi_table_mcfg_device
+{
+	u64_t base_address;
+	u16_t pci_segment_group_number;
+	u8_t start_pci_bus_number;
+	u8_t stop_pci_bus_number;
+	char reserved[4];
+}__attribute__((packed));
+
+struct acpi_table_mcfg
+{
+	char signature[4];
+	u32_t length;
+	u8_t revision;
+	u8_t checksum;
+	char oem_id[6];
+	char oem_table_id[8];
+	char oem_revision[4];
+	char creator_id[4];
+	char creator_revision[4];
+	char reserved[8];
+	struct acpi_table_mcfg_device devices[32];
+}__attribute__((packed));
+
+#define PCIE_VADDR(base, reg, bus, slot, func)        \
+        ((base)                                +        \
+        ((((bus) & 0xff) << 20)                |        \
+        (((slot) & 0x1f) << 15)                |        \
+        (((func) & 0x7) << 12)                |        \
+        ((reg) & 0xfff)))
+
 #define NR_DRIVERS	NR_SYS_PROCS
 
 #define PCI_IB_PIIX	1	/* Intel PIIX compatible ISA bridge */

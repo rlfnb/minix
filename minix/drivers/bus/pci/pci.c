@@ -86,6 +86,8 @@ static struct pcidev
 	int pd_bar_nr;
 } pcidev[NR_PCIDEV];
 
+static struct acpi_table_mcfg * mcfg;
+
 /* pb_flags */
 #define PBF_IO		1	/* I/O else memory */
 #define PBF_INCOMPLETE	2	/* not allocated */
@@ -2091,6 +2093,7 @@ sef_cb_init(int type, sef_init_info_t *info)
 
 	long v;
 	int i, r;
+	u32_t length = 0;
 	struct rprocpub rprocpub[NR_BOOT_PROCS];
 
 	v= 0;
@@ -2104,6 +2107,46 @@ sef_cb_init(int type, sef_init_info_t *info)
 	if (machine.apic_enabled &&
 			acpi_init() != OK) {
 		panic("PCI: Cannot use APIC mode without ACPI!\n");
+	}
+
+	if(acpi_init() == OK) {
+		int status;
+		char sig[4] = {'M','C','F','G'};
+		void * buf = calloc(1, 64);
+		if (buf == NULL) {
+			return ENOMEM;
+		}
+
+		status = acpi_get_table_header(sig, 0, buf);
+		length = ((u32_t *) buf)[1];
+		free(buf);
+		if (status == 0)
+		{
+			mcfg = (struct acpi_table_mcfg *) calloc(1, length);
+			if (buf == NULL) {
+				return ENOMEM;
+			}
+			status = acpi_get_table(sig, 0, buf, length);
+			if( status == 0)
+			{
+				if ( debug )
+				{
+					for(int k = 0 ; k < ((length-44)/16) ; k++)
+					{
+						printf("pci express device %d: base_address %llx pci_seg: %d start: %d stop: %d\n", k, 
+							mcfg->devices[k].base_address,
+							mcfg->devices[k].pci_segment_group_number,
+							mcfg->devices[k].start_pci_bus_number,
+							mcfg->devices[k].stop_pci_bus_number);
+					}	
+				}
+			}
+		}
+		else
+		{
+			if ( debug )
+				printf("no pci express found\n");
+		}
 	}
 
 	/* Only Intel (compatible) PCI controllers are supported at the

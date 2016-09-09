@@ -1,9 +1,11 @@
 #include <minix/driver.h>
 #include <acpi.h>
+#include <actbl.h>
 #include <assert.h>
 #include <minix/acpi.h>
 
 #include "pci.h"
+#include "table.h"
 
 int acpi_enabled;
 struct machine machine;
@@ -144,13 +146,18 @@ int main(void)
 			printf("ACPI: driver_receive failed: %d\n", err);
 			continue;
 		}
-
 		switch (((struct acpi_request_hdr *)&m)->request) {
 		case ACPI_REQ_GET_IRQ:
 			do_get_irq(&m);
 			break;
 		case ACPI_REQ_MAP_BRIDGE:
 			do_map_bridge(&m);
+			break;
+		case ACPI_REQ_GET_TABLE:
+			do_get_table(&m);
+			break;
+		case ACPI_REQ_GET_TABLE_HEADER:
+			do_get_table_header(&m);
 			break;
 		default:
 			printf("ACPI: ignoring unsupported request %d "

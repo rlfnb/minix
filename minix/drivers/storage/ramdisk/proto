@@ -21,6 +21,7 @@ d--755 0 0
 #ifdef __i386__
 		floppy ---755 0 0 floppy
 		ahci ---755 0 0 ahci
+		uhci ---755 0 0 uhci
 		virtio_blk ---755 0 0 virtio_blk
 		at_wini ---755 0 0 at_wini
 		pckbd ---755 0 0 pckbd

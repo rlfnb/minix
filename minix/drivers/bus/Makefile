@@ -12,6 +12,7 @@ SUBDIR+=	i2c
 
 .if ${MACHINE_ARCH} == "i386"
 SUBDIR+=	pci
+SUBDIR+=	usb
 .endif # ${MACHINE_ARCH} == "i386"
 
 .include <bsd.subdir.mk>

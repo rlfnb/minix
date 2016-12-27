@@ -25,6 +25,7 @@
 ./etc/system.conf.d/rtl8169                             minix-base
 ./etc/system.conf.d/ti1225                              minix-base
 ./etc/system.conf.d/trident                             minix-base
+./etc/system.conf.d/uhci                                minix-base
 ./etc/system.conf.d/vbfs                                minix-base
 ./etc/system.conf.d/vbox                                minix-base
 ./etc/system.conf.d/virtio_net                          minix-base
@@ -60,6 +61,7 @@
 ./service/sb16                                          minix-base
 ./service/ti1225                                        minix-base
 ./service/trident                                       minix-base
+./service/uhci                                          minix-base
 ./service/vbfs                                          minix-base
 ./service/vbox                                          minix-base
 ./service/virtio_blk                                    minix-base

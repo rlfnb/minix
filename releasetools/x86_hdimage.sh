@@ -49,11 +49,12 @@ menu=Start MINIX 3:load_mods /boot/minix_default/mod*; multiboot /boot/minix_def
 menu=Start latest MINIX 3:load_mods /boot/minix_latest/mod*; multiboot /boot/minix_latest/kernel rootdevname=c0d0p0
 menu=Start latest MINIX 3 in single user mode:load_mods /boot/minix_latest/mod*; multiboot /boot/minix_latest/kernel rootdevname=c0d0p0 bootopts=-s
 menu=Start MINIX 3 ALIX:load_mods /boot/minix_default/mod*;multiboot /boot/minix_default/kernel rootdevname=c0d0p0 console=tty00 consdev=com0 ata_no_dma=1
+menu=Start MINIX 3 serial:load_mods /boot/minix_default/mod*;multiboot /boot/minix_default/kernel rootdevname=c0d0p0 console=tty00 consdev=com0
 menu=Edit menu option:edit
 menu=Drop to boot prompt:prompt
 clear=1
 timeout=5
-default=2
+default=5
 menu=Start MINIX 3 ($RELEASE_VERSION):load_mods /boot/minix/$RELEASE_VERSION/mod*; multiboot /boot/minix/$RELEASE_VERSION/kernel rootdevname=c0d0p0
 END_BOOT_CFG
 add_file_spec "boot.cfg" extra.boot
@@ -132,5 +133,9 @@ echo "qemu-system-i386 --enable-kvm -m 256 -hda `pwd`/${IMG}"
 echo ""
 echo "To boot this image on kvm:"
 echo "cd ${MODDIR} && qemu-system-i386 --enable-kvm -m 256M -kernel kernel -append \"rootdevname=c0d0p0\" -initrd \"${mods}\" -hda `pwd`/${IMG}"
+echo ""
+echo "To boot this image on kvm with uhci:"
+echo "cd ${MODDIR} && qemu-system-i386 --enable-kvm -m 256M -kernel kernel -append \"rootdevname=c0d0p0\" -initrd \"${mods}\" -hda `pwd`/${IMG} -device piix4-usb-uhci"
+echo ""
 echo "To boot this image on kvm with EFI (tianocore OVMF):"
 echo "qemu-system-i386 -L . -bios OVMF-i32.fd -m 256M -drive file=minix_x86.img,if=ide,format=raw"

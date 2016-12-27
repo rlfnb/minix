@@ -13,6 +13,9 @@ then	if [ -e $ACPI -a -n "`sysenv acpi`" ]
 	fi
 	minix-service -c up /service/pci -dev /dev/pci
 
+	# make a loop around to start one instance per hardware device
+	minix-service -c up /service/uhci 
+
 	minix-service -c up /service/input -dev /dev/kbdmux
 	minix-service -c up /service/pckbd || :
 

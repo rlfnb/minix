@@ -5,6 +5,10 @@
 #include <minix/com.h>
 #include <minix/const.h>
 
+#ifdef __i386__
+#include <x86/mpbiosreg.h>
+#endif
+
 /* Number of processes contained in the system image. */
 #define NR_BOOT_PROCS   (NR_TASKS + LAST_SPECIAL_PROC_NR + 1)
 
@@ -44,6 +48,15 @@ typedef struct kinfo {
 	int vm_allocated_bytes; /* allocated by kernel to load vm */
 	int kernel_allocated_bytes;		/* used by kernel */
 	int kernel_allocated_bytes_dynamic;	/* used by kernel (runtime) */
+
+#ifdef __i386__
+	/* Extended BIOS Data Area */
+	u32_t 			ebda;
+        /* Multiprocessor specification related information */
+        struct mpbios_fps       mp_fps;
+        struct mpbios_cth       mp_cth;
+#endif
+
 } kinfo_t;
 #endif /* _MINIX_SYSTEM */
 

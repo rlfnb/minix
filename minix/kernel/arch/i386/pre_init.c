@@ -91,6 +91,39 @@ int overlaps(multiboot_module_t *mod, int n, int cmp_mod)
 	return 0;
 }
 
+void extract_ebda_pointer(kinfo_t *cbi)
+{
+	u16_t ebda;
+	memcpy(&ebda, (void *) 0x40E, sizeof(ebda));
+	cbi->ebda = ebda;
+	cbi->ebda <<= 4;
+}
+
+void lookup_mpspec_pointer(kinfo_t *cbi)
+{
+	struct mpbios_fps * fps;
+	fps = (struct mpbios_fps *) cbi->ebda;
+	for(u8_t i = 0 ; i < 64 ; i++){
+		fps = (struct mpbios_fps *) (cbi->ebda+(16*i));
+		if(fps->signature == MP_FP_SIG){
+			memcpy((void *)&cbi->mp_fps, (void *)fps, sizeof(struct mpbios_fps));
+			printf("MP specification 1.%d: floating pointer structure found at %p\n", fps->spec_rev, fps);
+		}
+	}
+
+	fps = (struct mpbios_fps *) 0xf0000;
+	for(u16_t i = 0 ; i < 4095 ; i++){
+		fps = (struct mpbios_fps *) (0xf0000+(16*i));
+		if(fps->signature == MP_FP_SIG){
+			memcpy((void *)&cbi->mp_fps, (void *)fps, sizeof(struct mpbios_fps));
+			printf("MP specification 1.%d: floating pointer structure found at %p\n", fps->spec_rev, fps);
+		}
+	}
+	if(cbi->mp_fps.pap){
+		memcpy((void *)&cbi->mp_cth, (void *)fps->pap, sizeof(struct mpbios_cth));
+	}
+}
+
 void get_parameters(u32_t ebx, kinfo_t *cbi) 
 {
 	multiboot_memory_map_t *mmap;
@@ -161,6 +194,9 @@ void get_parameters(u32_t ebx, kinfo_t *cbi)
 	 */
 	kinfo.kernel_allocated_bytes = (phys_bytes) &_kern_size;
 	kinfo.kernel_allocated_bytes -= cbi->bootstrap_len;
+
+	extract_ebda_pointer(cbi);
+	lookup_mpspec_pointer(cbi);
 
 	assert(!(cbi->bootstrap_start % I386_PAGE_SIZE));
 	cbi->bootstrap_len = rounddown(cbi->bootstrap_len, I386_PAGE_SIZE);

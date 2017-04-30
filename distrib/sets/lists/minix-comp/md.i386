@@ -208,6 +208,7 @@
 ./usr/include/x86/intrdefs.h                            minix-comp
 ./usr/include/x86/lock.h                                minix-comp
 ./usr/include/x86/math.h                                minix-comp
+./usr/include/x86/mpbiosreg.h                           minix-comp
 ./usr/include/x86/mtrr.h                                minix-comp
 ./usr/include/x86/mutex.h                               minix-comp
 ./usr/include/x86/pio.h                                 minix-comp

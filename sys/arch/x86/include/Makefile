@@ -27,4 +27,8 @@ INCS=	aout_machdep.h \
 	trap.h \
 	via_padlock.h
 
+.if defined(__MINIX)
+INCS+=  mpbiosreg.h
+.endif
+
 .include <bsd.kinc.mk>

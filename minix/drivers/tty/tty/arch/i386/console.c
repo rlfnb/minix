@@ -907,104 +907,105 @@ static void stop_beep(int arg __unused)
 /*===========================================================================*
  *				scr_init				     *
  *===========================================================================*/
-void scr_init(tp)
-tty_t *tp;
-{
-/* Initialize the screen driver. */
-  console_t *cons;
-  u16_t bios_columns, bios_crtbase, bios_fontlines;
-  u8_t bios_rows;
-  int line;
-  int s;
-  static int vdu_initialized = 0;
-  static unsigned page_size;
-
-  /* Associate console and TTY. */
-  line = tp - &tty_table[0];
-  if (line >= nr_cons) return;
-  cons = &cons_table[line];
-  cons->c_tty = tp;
-  cons->c_line = line;
-  tp->tty_priv = cons;
-
-  /* Fill in TTY function hooks. */
-  tp->tty_devwrite = cons_write;
-  tp->tty_echo = cons_echo;
-  tp->tty_ioctl = cons_ioctl;
-
-  /* Get the BIOS parameters that describe the VDU. */
-  if (! vdu_initialized++) {
-
-	/* FIXME: How about error checking? What to do on failure??? */
-  	s=sys_readbios(VDU_SCREEN_COLS_ADDR, &bios_columns,
-		VDU_SCREEN_COLS_SIZE);
-  	s=sys_readbios(VDU_CRT_BASE_ADDR, &bios_crtbase,
-		VDU_CRT_BASE_SIZE);
-  	s=sys_readbios( VDU_SCREEN_ROWS_ADDR, &bios_rows,
-		VDU_SCREEN_ROWS_SIZE);
-  	s=sys_readbios(VDU_FONTLINES_ADDR, &bios_fontlines,
-		VDU_FONTLINES_SIZE);
-
-  	vid_port = bios_crtbase;
-  	scr_width = bios_columns;
-  	font_lines = bios_fontlines;
-	scr_lines = bios_rows+1;
-
-  	if (color) {
-		vid_base = COLOR_BASE;
-		vid_size = COLOR_SIZE;
-  	} else {
-		vid_base = MONO_BASE;
-		vid_size = MONO_SIZE;
-  	}
-	vid_size = EGA_SIZE;
-	wrap = 0;
-
-	console_memory = vm_map_phys(SELF, (void *) vid_base, vid_size);
-
-	if(console_memory == MAP_FAILED) 
-  		panic("Console couldn't map video memory");
-
-	font_memory = vm_map_phys(SELF, (void *)GA_VIDEO_ADDRESS, GA_FONT_SIZE);
-
-	if(font_memory == MAP_FAILED) 
-  		panic("Console couldn't map font memory");
-
-  	vid_size >>= 1;		/* word count */
-  	vid_mask = vid_size - 1;
-
-  	/* Size of the screen (number of displayed characters.) */
-  	scr_size = scr_lines * scr_width;
-
-  	/* There can be as many consoles as video memory allows. */
-  	nr_cons = vid_size / scr_size;
-
-  	if (nr_cons > NR_CONS) nr_cons = NR_CONS;
-  	if (nr_cons > 1) wrap = 0;
-	if (nr_cons < 1) panic("no consoles");
-  	page_size = vid_size / nr_cons;
-  }
-
-  cons->c_start = line * page_size;
-  cons->c_limit = cons->c_start + page_size;
-  cons->c_cur = cons->c_org = cons->c_start;
-  cons->c_attr = cons->c_blank = BLANK_COLOR;
-
-  if (line != 0) {
-        /* Clear the non-console vtys. */
-  	blank_color = BLANK_COLOR;
-	mem_vid_copy(BLANK_MEM, cons->c_start, scr_size);
-  } else {
-	/* Set the cursor of the console vty at the bottom. c_cur
-	 * is updated automatically later.
-	 */
-	scroll_screen(cons, SCROLL_UP);
-	cons->c_row = scr_lines - 1;
-	cons->c_column = 0;
-  }
-  select_console(0);
-  cons_ioctl(tp, 0);
-}
+ void scr_init(tp)
+ tty_t *tp;
+ {
+ /* Initialize the screen driver. */
+   console_t *cons;
+   u16_t bios_columns, bios_crtbase, bios_fontlines;
+   u8_t bios_rows;
+   int line;
+   int s;
+   static int vdu_initialized = 0;
+   static unsigned page_size;
+ 
+   /* Associate console and TTY. */
+   line = tp - &tty_table[0];
+   if (line >= nr_cons) return;
+   cons = &cons_table[line];
+   cons->c_tty = tp;
+   cons->c_line = line;
+   tp->tty_priv = cons;
+ 
+   /* Fill in TTY function hooks. */
+   tp->tty_devwrite = cons_write;
+   tp->tty_echo = cons_echo;
+   tp->tty_ioctl = cons_ioctl;
+ 
+   /* Get the BIOS parameters that describe the VDU. */
+   if (! vdu_initialized++) {
+ 
+	 /* FIXME: How about error checking? What to do on failure??? */
+	   s=sys_readbios(VDU_SCREEN_COLS_ADDR, &bios_columns,
+		 VDU_SCREEN_COLS_SIZE);
+	   s=sys_readbios(VDU_CRT_BASE_ADDR, &bios_crtbase,
+		 VDU_CRT_BASE_SIZE);
+	   s=sys_readbios( VDU_SCREEN_ROWS_ADDR, &bios_rows,
+		 VDU_SCREEN_ROWS_SIZE);
+	   s=sys_readbios(VDU_FONTLINES_ADDR, &bios_fontlines,
+		 VDU_FONTLINES_SIZE);
+ 
+	   vid_port = bios_crtbase;
+	   scr_width = bios_columns;
+	   font_lines = bios_fontlines;
+	 scr_lines = bios_rows+1;
+ 
+	   if (color) {
+		 vid_base = COLOR_BASE;
+		 vid_size = COLOR_SIZE;
+	   } else {
+		 vid_base = MONO_BASE;
+		 vid_size = MONO_SIZE;
+	   }
+	 vid_size = EGA_SIZE;
+	 wrap = 0;
+ 
+	 console_memory = vm_map_phys(SELF, (void *) vid_base, vid_size);
+ 
+	 if(console_memory == MAP_FAILED) 
+		   panic("Console couldn't map video memory");
+ 
+	 font_memory = vm_map_phys(SELF, (void *)GA_VIDEO_ADDRESS, GA_FONT_SIZE);
+ 
+	 if(font_memory == MAP_FAILED) 
+		   panic("Console couldn't map font memory");
+ 
+	   vid_size >>= 1;		/* word count */
+	   vid_mask = vid_size - 1;
+ 
+	   /* Size of the screen (number of displayed characters.) */
+	   scr_size = scr_lines * scr_width;
+ 
+	   /* There can be as many consoles as video memory allows. */
+	   nr_cons = vid_size / scr_size;
+ 
+	   if (nr_cons > NR_CONS) nr_cons = NR_CONS;
+	   if (nr_cons > 1) wrap = 0;
+	 if (nr_cons < 1) panic("no consoles");
+	   page_size = vid_size / nr_cons;
+   }
+ 
+   cons->c_start = line * page_size;
+   cons->c_limit = cons->c_start + page_size;
+   cons->c_cur = cons->c_org = cons->c_start;
+   cons->c_attr = cons->c_blank = BLANK_COLOR;
+ 
+   if (line != 0) {
+		 /* Clear the non-console vtys. */
+	   blank_color = BLANK_COLOR;
+	 mem_vid_copy(BLANK_MEM, cons->c_start, scr_size);
+   } else {
+	 /* Set the cursor of the console vty at the bottom. c_cur
+	  * is updated automatically later.
+	  */
+	 scroll_screen(cons, SCROLL_UP);
+	 cons->c_row = scr_lines - 1;
+	 cons->c_column = 0;
+   }
+   select_console(0);
+   cons_ioctl(tp, 0);
+ }
+ 
 
 /*===========================================================================*
  *				toggle_scroll				     *

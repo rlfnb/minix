@@ -1538,8 +1538,7 @@ static void tty_init()
 
   register tty_t *tp;
   int s;
-
-  system_hz = sys_hz();
+  long disable_vga;
 
   /* Initialize the terminal lines. */
   memset(tty_table, '\0' , sizeof(tty_table));
@@ -1555,7 +1554,7 @@ static void tty_init()
   	tp->tty_termios = termios_defaults;
   	tp->tty_icancel = tp->tty_ocancel = tp->tty_ioctl = tp->tty_close =
 			  tp->tty_open = tty_devnop;
-  	if (tp < tty_addr(NR_CONS)) {
+  	if (tp < tty_addr(NR_CONS) && disable_vga != 1) {
 		scr_init(tp);
 
 		/* Initialize the keyboard driver. */

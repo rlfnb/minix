@@ -212,6 +212,25 @@ void get_parameters(u32_t ebx, kinfo_t *cbi)
 			cbi->module_list[m].mod_start, 
 			cbi->module_list[m].mod_end);
 	}
+	printf("multiboot flags: %x\n", mbi->mi_flags);
+	if(mbi->mi_flags & MULTIBOOT_INFO_HAS_FRAMEBUFFER){
+		printf("multiboot fb_addr : %llx fb_addr(u32) : %08x fb_pitch: %08x fb_width: %08x fb_height: %08x fb_bpp: %02x fb_type: %02x\n",
+		  mbi->framebuffer_addr, (u32_t)mbi->framebuffer_addr, mbi->framebuffer_pitch, mbi->framebuffer_width,
+		  mbi->framebuffer_height, mbi->framebuffer_bpp, mbi->framebuffer_type );
+
+		u32_t fb_size = (mbi->framebuffer_width * mbi->framebuffer_height * (mbi->framebuffer_bpp/8) );
+
+		char * framebuffer = (char *)((u32_t) mbi->framebuffer_addr );
+
+		for (u32_t i = 0 ; i < fb_size ; i++){
+		  if(i % (mbi->framebuffer_bpp/8) == 0){
+			framebuffer[i]= 128;
+		  }else {
+			framebuffer[i]= 0;
+		  }
+		}
+
+	  }
 }
 
 kinfo_t *pre_init(u32_t magic, u32_t ebx)

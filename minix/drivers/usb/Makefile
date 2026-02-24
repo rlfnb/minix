@@ -1,8 +1,8 @@
 .include <bsd.own.mk>
 
-.if ${MACHINE_ARCH} == "earm"
+.if ${MACHINE_ARCH} == "earm" || ${MACHINE_ARCH} == "i386"
 SUBDIR+=	usbd
-.endif # ${MACHINE_ARCH} == "earm"
+.endif
 
 SUBDIR+=	usb_storage usb_hub
 

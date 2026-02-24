@@ -17,4 +17,12 @@ int musb_dm37x_init(void);
 void musb_dm37x_deinit(void);
 
 
+/*===========================================================================*
+ *    UHCI                                                                   *
+ *===========================================================================*/
+/* ----- PCI-based UHCI (x86) ----- */
+int uhci_pci_init(void);
+void uhci_pci_deinit(void);
+
+
 #endif /* !_HCD_PLATFORMS_H_ */

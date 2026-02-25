@@ -123,11 +123,17 @@ int usb_init(char *name)
 	int res;
 	message msg;
 
-	/* get the endpoint of the HCD */
-	res = ds_retrieve_label_endpt("usbd", &hcd_ep);
+	/* get the endpoint of the USB core coordinator */
+	res = ds_retrieve_label_endpt("usb_core", &hcd_ep);
 
 	if (res != 0) {
-		panic("usb_init: ds_retrieve_label_endpt failed for 'usb': %d", res);
+		/* Fall back to legacy usbd for backwards compatibility */
+		res = ds_retrieve_label_endpt("usbd", &hcd_ep);
+	}
+
+	if (res != 0) {
+		panic("usb_init: ds_retrieve_label_endpt failed for "
+			"'usb_core'/'usbd': %d", res);
 	}
 
 	msg.m_type = USB_RQ_INIT;

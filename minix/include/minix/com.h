@@ -839,6 +839,29 @@
 #   define USB_INFO_TYPE    m4_l1
 #   define USB_INFO_VALUE   m4_l2
 
+/* Messages between HCD drivers and usb_core */
+#define USB_HCD_BASE         (USB_BASE + 16)
+
+#define USB_HCD_REGISTER     (USB_HCD_BASE + 0) /* HCD registers with core */
+#define USB_HCD_REGISTER_REPLY (USB_HCD_BASE + 1)
+#define USB_HCD_PORT_STATUS  (USB_HCD_BASE + 2) /* HCD reports port change */
+#define USB_HCD_SUBMIT_URB   (USB_HCD_BASE + 3) /* Core sends URB to HCD */
+#define USB_HCD_URB_COMPLETE (USB_HCD_BASE + 4) /* HCD reports URB done */
+#define USB_HCD_RESET_PORT   (USB_HCD_BASE + 5) /* Core requests port reset */
+#define USB_HCD_RESET_DONE   (USB_HCD_BASE + 6) /* HCD reports reset done */
+
+/* HCD register message fields */
+#   define USB_HCD_PORTS     m4_l1  /* Number of root hub ports */
+#   define USB_HCD_CAPS      m4_l2  /* Capability flags */
+#   define USB_HCD_ID        m4_l3  /* HCD ID assigned by core */
+
+/* HCD port status fields */
+#   define USB_HCD_PORT      m4_l1  /* Port number */
+#   define USB_HCD_PSTATUS   m4_l2  /* Port status flags */
+#   define USB_HCD_SPEED     m4_l3  /* Device speed */
+
+/* HCD URB fields (reuse USB_GRANT_ID, USB_GRANT_SIZE, USB_URB_ID) */
+
 /*===========================================================================*
  *              Messages for DeviceManager (s/t like SysFS)                  *
  *===========================================================================*/

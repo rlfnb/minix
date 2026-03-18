@@ -2011,156 +2011,156 @@
 ./usr/lib/i18n/libmapper_std.a                          minix-comp
 ./usr/lib/i18n/libmapper_zone.a                         minix-comp
 ./usr/lib/libarchive.a                                  minix-comp
-./usr/lib/libarchive_pic.a                              minix-comp
+./usr/lib/libarchive_pic.a                              minix-comp	pic
 ./usr/lib/libasyn.a                                     minix-comp
-./usr/lib/libasyn_pic.a                                 minix-comp
+./usr/lib/libasyn_pic.a                                 minix-comp	pic
 ./usr/lib/libaudiodriver.a                              minix-comp
-./usr/lib/libaudiodriver_pic.a                          minix-comp
+./usr/lib/libaudiodriver_pic.a                          minix-comp	pic
 ./usr/lib/libbdev.a                                     minix-comp
-./usr/lib/libbdev_pic.a                                 minix-comp
+./usr/lib/libbdev_pic.a                                 minix-comp	pic
 ./usr/lib/libbind9.a                                    minix-comp
-./usr/lib/libbind9_pic.a                                minix-comp
+./usr/lib/libbind9_pic.a                                minix-comp	pic
 ./usr/lib/libblockdriver.a                              minix-comp
-./usr/lib/libblockdriver_pic.a                          minix-comp
+./usr/lib/libblockdriver_pic.a                          minix-comp	pic
 ./usr/lib/libbz2.a                                      minix-comp
-./usr/lib/libbz2_pic.a                                  minix-comp
+./usr/lib/libbz2_pic.a                                  minix-comp	pic
 ./usr/lib/libc++.a                                      minix-comp      libcxx
-./usr/lib/libc++_pic.a                                  minix-comp      libcxx
+./usr/lib/libc++_pic.a                                  minix-comp      libcxx,pic
 ./usr/lib/libc.a                                        minix-comp
-./usr/lib/libc_pic.a                                    minix-comp
+./usr/lib/libc_pic.a                                    minix-comp	pic
 ./usr/lib/libchardriver.a                               minix-comp
-./usr/lib/libchardriver_pic.a                           minix-comp
+./usr/lib/libchardriver_pic.a                           minix-comp	pic
 ./usr/lib/libcompat_minix.a                             minix-comp      obsolete
-./usr/lib/libcompat_minix_pic.a                         minix-comp      obsolete
+./usr/lib/libcompat_minix_pic.a                         minix-comp      obsolete,pic
 ./usr/lib/libcrypt.a                                    minix-comp
-./usr/lib/libcrypt_pic.a                                minix-comp
+./usr/lib/libcrypt_pic.a                                minix-comp	pic
 ./usr/lib/libcurses.a                                   minix-comp
-./usr/lib/libcurses_pic.a                               minix-comp
+./usr/lib/libcurses_pic.a                               minix-comp	pic
 ./usr/lib/libddekit.a                                   minix-comp
-./usr/lib/libddekit_pic.a                               minix-comp
+./usr/lib/libddekit_pic.a                               minix-comp	pic
 ./usr/lib/libddekit_usb_client.a                        minix-comp
-./usr/lib/libddekit_usb_client_pic.a                    minix-comp
+./usr/lib/libddekit_usb_client_pic.a                    minix-comp	pic
 ./usr/lib/libddekit_usb_server.a                        minix-comp
-./usr/lib/libddekit_usb_server_pic.a                    minix-comp
+./usr/lib/libddekit_usb_server_pic.a                    minix-comp	pic
 ./usr/lib/libdevman.a                                   minix-comp
-./usr/lib/libdevman_pic.a                               minix-comp
+./usr/lib/libdevman_pic.a                               minix-comp	pic
 ./usr/lib/libdns.a                                      minix-comp
-./usr/lib/libdns_pic.a                                  minix-comp
+./usr/lib/libdns_pic.a                                  minix-comp	pic
 ./usr/lib/libedit.a                                     minix-comp
-./usr/lib/libedit_pic.a                                 minix-comp
+./usr/lib/libedit_pic.a                                 minix-comp	pic
 ./usr/lib/libelf.a                                      minix-comp
-./usr/lib/libelf_pic.a                                  minix-comp
+./usr/lib/libelf_pic.a                                  minix-comp	pic
 ./usr/lib/libevent.a                                    minix-comp
-./usr/lib/libevent_pic.a                                minix-comp
+./usr/lib/libevent_pic.a                                minix-comp	pic
 ./usr/lib/libexec.a                                     minix-comp
-./usr/lib/libexec_pic.a                                 minix-comp
+./usr/lib/libexec_pic.a                                 minix-comp	pic
 ./usr/lib/libexecinfo.a                                 minix-comp
-./usr/lib/libexecinfo_pic.a                             minix-comp
+./usr/lib/libexecinfo_pic.a                             minix-comp	pic
 ./usr/lib/libexpat.a                                    minix-comp
-./usr/lib/libexpat_pic.a                                minix-comp
+./usr/lib/libexpat_pic.a                                minix-comp	pic
 ./usr/lib/libfetch.a                                    minix-comp
-./usr/lib/libfetch_pic.a                                minix-comp
+./usr/lib/libfetch_pic.a                                minix-comp	pic
 ./usr/lib/libfl.a                                       minix-comp
 ./usr/lib/libform.a                                     minix-comp
-./usr/lib/libform_pic.a                                 minix-comp
+./usr/lib/libform_pic.a                                 minix-comp	pic
 ./usr/lib/libfsdriver.a                                 minix-comp
-./usr/lib/libfsdriver_pic.a                             minix-comp
+./usr/lib/libfsdriver_pic.a                             minix-comp	pic
 ./usr/lib/libgcc.a                                      minix-comp      gcc=45
 ./usr/lib/libgcc_eh.a                                   minix-comp      gcc=45
 ./usr/lib/libgcc_s.a                                    minix-comp
-./usr/lib/libgcc_s_pic.a                                minix-comp      obsolete
+./usr/lib/libgcc_s_pic.a                                minix-comp      obsolete,pic
 ./usr/lib/libgcov.a                                     minix-comp      gcc=45,!gcccmds
 ./usr/lib/libinputdriver.a                              minix-comp
-./usr/lib/libinputdriver_pic.a                          minix-comp
+./usr/lib/libinputdriver_pic.a                          minix-comp	pic
 ./usr/lib/libintl.a                                     minix-comp
-./usr/lib/libintl_pic.a                                 minix-comp
+./usr/lib/libintl_pic.a                                 minix-comp	pic
 ./usr/lib/libirs.a                                      minix-comp
-./usr/lib/libirs_pic.a                                  minix-comp
+./usr/lib/libirs_pic.a                                  minix-comp	pic
 ./usr/lib/libisc.a                                      minix-comp
-./usr/lib/libisc_pic.a                                  minix-comp
+./usr/lib/libisc_pic.a                                  minix-comp	pic
 ./usr/lib/libisccc.a                                    minix-comp
-./usr/lib/libisccc_pic.a                                minix-comp
+./usr/lib/libisccc_pic.a                                minix-comp	pic
 ./usr/lib/libisccfg.a                                   minix-comp
-./usr/lib/libisccfg_pic.a                               minix-comp
+./usr/lib/libisccfg_pic.a                               minix-comp	pic
 ./usr/lib/libkvm.a                                      minix-comp
-./usr/lib/libkvm_pic.a                                  minix-comp
+./usr/lib/libkvm_pic.a                                  minix-comp	pic
 ./usr/lib/libl.a                                        minix-comp
 ./usr/lib/liblua.a                                      minix-comp
-./usr/lib/liblua_pic.a                                  minix-comp
+./usr/lib/liblua_pic.a                                  minix-comp	pic
 ./usr/lib/liblwip.a                                     minix-comp
-./usr/lib/liblwip_pic.a                                 minix-comp
+./usr/lib/liblwip_pic.a                                 minix-comp	pic
 ./usr/lib/liblwres.a                                    minix-comp
-./usr/lib/liblwres_pic.a                                minix-comp
+./usr/lib/liblwres_pic.a                                minix-comp	pic
 ./usr/lib/liblzma.a                                     minix-comp
-./usr/lib/liblzma_pic.a                                 minix-comp
+./usr/lib/liblzma_pic.a                                 minix-comp	pic
 ./usr/lib/libm.a                                        minix-comp
-./usr/lib/libm_pic.a                                    minix-comp
+./usr/lib/libm_pic.a                                    minix-comp	pic
 ./usr/lib/libmagic.a                                    minix-comp
-./usr/lib/libmagic_pic.a                                minix-comp
+./usr/lib/libmagic_pic.a                                minix-comp	pic
 ./usr/lib/libmagicrt.bcc                                minix-comp      magic
 ./usr/lib/libmenu.a                                     minix-comp
-./usr/lib/libmenu_pic.a                                 minix-comp
+./usr/lib/libmenu_pic.a                                 minix-comp	pic
 ./usr/lib/libminc.a                                     minix-comp
 ./usr/lib/libminixfs.a                                  minix-comp
-./usr/lib/libminixfs_pic.a                              minix-comp
+./usr/lib/libminixfs_pic.a                              minix-comp	pic
 ./usr/lib/libminlib.a                                   minix-comp      obsolete
-./usr/lib/libminlib_pic.a                               minix-comp      obsolete
+./usr/lib/libminlib_pic.a                               minix-comp      obsolete,pic
 ./usr/lib/libmthread.a                                  minix-comp
-./usr/lib/libmthread_pic.a                              minix-comp
+./usr/lib/libmthread_pic.a                              minix-comp	pic
 ./usr/lib/libnetdriver.a                                minix-comp
-./usr/lib/libnetdriver_pic.a                            minix-comp
+./usr/lib/libnetdriver_pic.a                            minix-comp	pic
 ./usr/lib/libnetsock.a                                  minix-comp      obsolete
-./usr/lib/libnetsock_pic.a                              minix-comp      obsolete
+./usr/lib/libnetsock_pic.a                              minix-comp      obsolete,pic
 ./usr/lib/libobjc.a                                     minix-comp      gcc=45
-./usr/lib/libobjc_pic.a                                 minix-comp      gcc=45
+./usr/lib/libobjc_pic.a                                 minix-comp      gcc=45,pic
 ./usr/lib/libpcap.a                                     minix-comp
-./usr/lib/libpcap_pic.a                                 minix-comp
+./usr/lib/libpcap_pic.a                                 minix-comp	pic
 ./usr/lib/libpci.a                                      minix-comp
-./usr/lib/libpci_pic.a                                  minix-comp
+./usr/lib/libpci_pic.a                                  minix-comp	pic
 ./usr/lib/libprop.a                                     minix-comp
-./usr/lib/libprop_pic.a                                 minix-comp
+./usr/lib/libprop_pic.a                                 minix-comp	pic
 ./usr/lib/libpuffs.a                                    minix-comp
-./usr/lib/libpuffs_pic.a                                minix-comp
+./usr/lib/libpuffs_pic.a                                minix-comp	pic
 ./usr/lib/librefuse.a                                   minix-comp
-./usr/lib/librefuse_pic.a                               minix-comp
+./usr/lib/librefuse_pic.a                               minix-comp	pic
 ./usr/lib/librmt.a                                      minix-comp
 ./usr/lib/libsffs.a                                     minix-comp
-./usr/lib/libsffs_pic.a                                 minix-comp
+./usr/lib/libsffs_pic.a                                 minix-comp	pic
 ./usr/lib/libsockdriver.a                               minix-comp
-./usr/lib/libsockdriver_pic.a                           minix-comp
+./usr/lib/libsockdriver_pic.a                           minix-comp	pic
 ./usr/lib/libsockevent.a                                minix-comp
-./usr/lib/libsockevent_pic.a                            minix-comp
+./usr/lib/libsockevent_pic.a                            minix-comp	pic
 ./usr/lib/libsqlite3.a                                  minix-comp
-./usr/lib/libsqlite3_pic.a                              minix-comp
+./usr/lib/libsqlite3_pic.a                              minix-comp	pic
 ./usr/lib/libstdc++.a                                   minix-comp      libstdcxx
-./usr/lib/libstdc++_pic.a                               minix-comp      libstdcxx
+./usr/lib/libstdc++_pic.a                               minix-comp      libstdcxx,pic
 ./usr/lib/libsupc++.a                                   minix-comp      libstdcxx
 ./usr/lib/libsys.a                                      minix-comp
-./usr/lib/libsys_pic.a                                  minix-comp
+./usr/lib/libsys_pic.a                                  minix-comp	pic
 ./usr/lib/libtermcap.a                                  minix-comp
-./usr/lib/libtermcap_pic.a                              minix-comp
+./usr/lib/libtermcap_pic.a                              minix-comp	pic
 ./usr/lib/libterminfo.a                                 minix-comp
-./usr/lib/libterminfo_pic.a                             minix-comp
+./usr/lib/libterminfo_pic.a                             minix-comp	pic
 ./usr/lib/libtermlib.a                                  minix-comp
-./usr/lib/libtermlib_pic.a                              minix-comp
+./usr/lib/libtermlib_pic.a                              minix-comp	pic
 ./usr/lib/libtimers.a                                   minix-comp
-./usr/lib/libtimers_pic.a                               minix-comp
+./usr/lib/libtimers_pic.a                               minix-comp	pic
 ./usr/lib/libusb.a                                      minix-comp
-./usr/lib/libusb_pic.a                                  minix-comp
+./usr/lib/libusb_pic.a                                  minix-comp	pic
 ./usr/lib/libutil.a                                     minix-comp
-./usr/lib/libutil_pic.a                                 minix-comp
+./usr/lib/libutil_pic.a                                 minix-comp	pic
 ./usr/lib/libvtreefs.a                                  minix-comp
-./usr/lib/libvtreefs_pic.a                              minix-comp
+./usr/lib/libvtreefs_pic.a                              minix-comp	pic
 ./usr/lib/libwrap.a                                     minix-comp
-./usr/lib/libwrap_pic.a                                 minix-comp
+./usr/lib/libwrap_pic.a                                 minix-comp	pic
 ./usr/lib/libz.a                                        minix-comp
-./usr/lib/libz_pic.a                                    minix-comp
+./usr/lib/libz_pic.a                                    minix-comp	pic
 ./usr/libexec/cc1                                       minix-comp      gcccmds
 ./usr/libexec/cc1obj                                    minix-comp      gcccmds
 ./usr/libexec/cc1plus                                   minix-comp      gcccmds
-./usr/libexec/liblto_plugin.so.0.0                      minix-base      gcc=5
-./usr/libexec/liblto_plugin.so.0                        minix-base      gcc=5
-./usr/libexec/liblto_plugin.so                          minix-base      gcc=5
+./usr/libexec/liblto_plugin.so.0.0                      minix-base      gcc=5,pic
+./usr/libexec/liblto_plugin.so.0                        minix-base      gcc=5,pic
+./usr/libexec/liblto_plugin.so                          minix-base      gcc=5,pic
 ./usr/libexec/lto-wrapper                               minix-base      gcc=5
 ./usr/libexec/lto1                                      minix-base      gcc=5
 ./usr/man                                               minix-comp      gcccmds

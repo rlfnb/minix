@@ -26,6 +26,12 @@ MKGCC?=		no
 MKGCCCMDS?=	no
 MKPROFILE?=	no
 MKSLJIT?=	no
+# MINIX defaults to static linking (LDSTATIC=-static), so building
+# position-independent code and shared libraries is unnecessary.
+# This eliminates .pico objects and .so libraries from the build.
+MKPIC:=		no
+MKPICLIB:=	no
+MKPICINSTALL:=	no
 
 #MINIX-specific variables
 MKCOVERAGE?=	no

@@ -66,19 +66,19 @@
 ./service/virtio_net                                    minix-base
 ./service/vt6105                                        minix-base
 ./usr/lib/libacpi.a                                     minix-base
-./usr/lib/libacpi_pic.a                                 minix-base
+./usr/lib/libacpi_pic.a                                 minix-base	pic
 ./usr/lib/libhgfs.a                                     minix-base
-./usr/lib/libhgfs_pic.a                                 minix-base
+./usr/lib/libhgfs_pic.a                                 minix-base	pic
 ./usr/lib/libm387.a                                     minix-base
-./usr/lib/libm387.so                                    minix-base
-./usr/lib/libm387.so.0                                  minix-base
-./usr/lib/libm387.so.0.1                                minix-base
-./usr/lib/libm387_pic.a                                 minix-base
+./usr/lib/libm387.so                                    minix-base	pic
+./usr/lib/libm387.so.0                                  minix-base	pic
+./usr/lib/libm387.so.0.1                                minix-base	pic
+./usr/lib/libm387_pic.a                                 minix-base	pic
 ./usr/lib/libvassert.a                                  minix-base
 ./usr/lib/libvboxfs.a                                   minix-base
-./usr/lib/libvboxfs_pic.a                               minix-base
+./usr/lib/libvboxfs_pic.a                               minix-base	pic
 ./usr/lib/libvirtio.a                                   minix-base
-./usr/lib/libvirtio_pic.a                               minix-base
+./usr/lib/libvirtio_pic.a                               minix-base	pic
 ./usr/mdec                                              minix-base
 ./usr/mdec/boot_monitor                                 minix-base
 ./usr/mdec/bootxx_cd9660                                minix-base

@@ -13,18 +13,29 @@ static int print_line = 1, print_col = 1;
 #include <sys/video.h>
 
 extern char *video_mem;
+
+/*
+ * Console output mode:
+ *   0 = VGA text mode (default, BIOS boot)
+ *   1 = serial only (UEFI boot without framebuffer)
+ */
+int direct_con_mode = 0;
+
 #define VIDOFFSET(line, col) ((line) * MULTIBOOT_CONSOLE_COLS * 2 + (col) * 2)
 #define VIDSIZE VIDOFFSET(MULTIBOOT_CONSOLE_LINES-1,MULTIBOOT_CONSOLE_COLS-1)
 
-void direct_put_char(char c, int line, int col) 
+void direct_put_char(char c, int line, int col)
 {
-	int offset = VIDOFFSET(line, col);
+	int offset;
+	if (direct_con_mode != 0) return;
+	offset = VIDOFFSET(line, col);
 	video_mem[offset] = c;
 	video_mem[offset+1] = 0x07;	/* grey-on-black */
 }
 
-static char direct_get_char(int line, int col) 
+static char direct_get_char(int line, int col)
 {
+	if (direct_con_mode != 0) return ' ';
 	return video_mem[VIDOFFSET(line, col)];
 }
 
@@ -32,6 +43,8 @@ void direct_cls(void)
 {
 	/* Clear screen */
 	int i,j;
+
+	if (direct_con_mode != 0) return;
 
 	for(i = 0; i < MULTIBOOT_CONSOLE_COLS; i++)
 		for(j = 0; j < MULTIBOOT_CONSOLE_LINES; j++)
@@ -46,9 +59,15 @@ void direct_cls(void)
 	outb(C_6845+DATA, 0);
 }
 
-static void direct_scroll_up(int lines) 
+static void direct_scroll_up(int lines)
 {
 	int i, j;
+
+	if (direct_con_mode != 0) {
+		print_line -= lines;
+		return;
+	}
+
 	for (i = 0; i < MULTIBOOT_CONSOLE_LINES; i++ ) {
 		for (j = 0; j < MULTIBOOT_CONSOLE_COLS; j++ ) {
 			char c = 0;
@@ -64,6 +83,26 @@ void direct_print_char(char c)
 {
 	while (print_line >= MULTIBOOT_CONSOLE_LINES)
 		direct_scroll_up(1);
+
+	if (direct_con_mode != 0) {
+		/* Serial-only mode: output via serial port */
+#ifdef DEBUG_SERIAL
+		if (c == '\n')
+			ser_putc('\r');
+		ser_putc(c);
+#endif
+		if (c == '\n') {
+			print_line++;
+			print_col = 0;
+		} else {
+			print_col++;
+			if (print_col >= MULTIBOOT_CONSOLE_COLS) {
+				print_line++;
+				print_col = 0;
+			}
+		}
+		return;
+	}
 
 #define TABWIDTH 8
 	if(c == '\t') {
@@ -114,6 +153,8 @@ int direct_read_char(unsigned char *ch)
 {
 	unsigned long sb;
 
+	if (direct_con_mode != 0) return 0;
+
 	sb = inb(KB_STATUS);
 
 	if (!(sb & KB_OUT_FULL)) {
@@ -127,4 +168,3 @@ int direct_read_char(unsigned char *ch)
 
 	return 0;
 }
-

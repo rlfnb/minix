@@ -266,14 +266,15 @@ fetch_and_build_grub()
        else
          git clone git://git.savannah.gnu.org/grub.git ${RELEASETOOLSDIR}/grub
          pushd ${RELEASETOOLSDIR}/grub
-         # most recent known working commit at the time of writing
-         git checkout a0bf403f66dbaca4edd8e667bfc397dd91c8d71c
+         git checkout grub-2.06
          ./autogen.sh
          ./configure --with-platform=efi --target=i386
          make clean
          make -j ${JOBS}
          cd grub-core
-         ../grub-mkimage -v -d . -o booti386.efi -O i386-efi -p /boot/efi normal part_msdos fat chain boot configfile multiboot minix3 gzio efi_uga
+         ../grub-mkimage -v -d . -o booti386.efi -O i386-efi -p /boot/efi \
+           normal part_msdos fat chain boot configfile multiboot \
+           gzio efi_gop serial ls
          ls -l booti386.efi
          popd
        fi
@@ -286,21 +287,16 @@ create_grub_cfg()
 {
 	cat > ${EFI_DIR}/boot/efi/grub.cfg <<END_GRUBCFG
 
-insmod serial
-insmod minix3
-insmod gzio
-#insmod efi_uga
-#insmod video_fb
-insmod all_video
+serial --unit=0 --speed=115200
+terminal_input serial console
+terminal_output serial console
 
 set timeout=30
-set default=0
-
-set gfxmode=text
+set default=1
 
 menuentry "Minix Boot" {
         set root=(hd0,1)
-        multiboot /boot/minix_default/kernel rootdevname=c0d0p0
+        multiboot /boot/minix_default/kernel rootdevname=c0d0p0 novga=1
         module /boot/minix_default/mod01_ds
         module /boot/minix_default/mod02_rs
         module /boot/minix_default/mod03_pm
@@ -317,7 +313,7 @@ menuentry "Minix Boot" {
 
 menuentry "Minix Boot (serial)" {
         set root=(hd0,1)
-        multiboot /boot/minix_default/kernel rootdevname=c0d0p0 cttyline=0 ttybaud=115200 console=tty00 consdev=com0
+        multiboot /boot/minix_default/kernel rootdevname=c0d0p0 novga=1 cttyline=0 ttybaud=115200 console=tty00 consdev=com0
         module /boot/minix_default/mod01_ds
         module /boot/minix_default/mod02_rs
         module /boot/minix_default/mod03_pm

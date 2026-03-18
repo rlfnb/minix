@@ -26,7 +26,7 @@ fi
 : ${ROOT_SIZE=$((  128*(2**20) - ${BOOTXX_SECS} * 512 ))}
 : ${HOME_SIZE=$((  128*(2**20) ))}
 : ${USR_SIZE=$((  1792*(2**20) ))}
-: ${EFI_SIZE=$((  0  ))}
+: ${EFI_SIZE=$((  10*(2**20)  ))}
 
 # set up disk creation environment
 . releasetools/image.defaults

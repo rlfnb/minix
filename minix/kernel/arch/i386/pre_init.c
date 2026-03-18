@@ -43,6 +43,11 @@ static int mb_set_param(char *bigbuf, char *name, char *value, kinfo_t *cbi)
 	/* Some variables we recognize */
 	if(!strcmp(name, SERVARNAME)) { cbi->do_serial_debug = 1; }
 	if(!strcmp(name, SERBAUDVARNAME)) { cbi->serial_debug_baud = atoi(value); }
+	if(!strcmp(name, "novga")) {
+		extern int direct_con_mode;
+		direct_con_mode = 1;		/* serial-only output */
+		cbi->do_serial_debug = 1;	/* force serial debug */
+	}
 
 	/* Delete the item if already exists */
 	while (*p) {

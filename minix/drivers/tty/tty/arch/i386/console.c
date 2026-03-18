@@ -919,20 +919,7 @@ tty_t *tp;
   static int vdu_initialized = 0;
   static unsigned page_size;
 
-  /* Associate console and TTY. */
-  line = tp - &tty_table[0];
-  if (line >= nr_cons) return;
-  cons = &cons_table[line];
-  cons->c_tty = tp;
-  cons->c_line = line;
-  tp->tty_priv = cons;
-
-  /* Fill in TTY function hooks. */
-  tp->tty_devwrite = cons_write;
-  tp->tty_echo = cons_echo;
-  tp->tty_ioctl = cons_ioctl;
-
-  /* Get the BIOS parameters that describe the VDU. */
+  /* Probe BIOS VDU params on first call; may set nr_cons = 0. */
   if (! vdu_initialized++) {
 
 	/* FIXME: How about error checking? What to do on failure??? */
@@ -944,6 +931,18 @@ tty_t *tp;
 		VDU_SCREEN_ROWS_SIZE);
   	s=sys_readbios(VDU_FONTLINES_ADDR, &bios_fontlines,
 		VDU_FONTLINES_SIZE);
+
+	/*
+	 * On UEFI systems without CSM, the BIOS Data Area is not
+	 * initialized.  Detect this by checking for sane VDU params.
+	 * If invalid, skip all VGA hardware access -- the system will
+	 * use serial console instead.
+	 */
+	if ((bios_crtbase != C_6845 && bios_crtbase != M_6845) ||
+	    bios_columns == 0 || bios_columns > 256) {
+		nr_cons = 0;
+		return;
+	}
 
   	vid_port = bios_crtbase;
   	scr_width = bios_columns;
@@ -962,12 +961,12 @@ tty_t *tp;
 
 	console_memory = vm_map_phys(SELF, (void *) vid_base, vid_size);
 
-	if(console_memory == MAP_FAILED) 
+	if(console_memory == MAP_FAILED)
   		panic("Console couldn't map video memory");
 
 	font_memory = vm_map_phys(SELF, (void *)GA_VIDEO_ADDRESS, GA_FONT_SIZE);
 
-	if(font_memory == MAP_FAILED) 
+	if(font_memory == MAP_FAILED)
   		panic("Console couldn't map font memory");
 
   	vid_size >>= 1;		/* word count */
@@ -984,6 +983,19 @@ tty_t *tp;
 	if (nr_cons < 1) panic("no consoles");
   	page_size = vid_size / nr_cons;
   }
+
+  /* Associate console and TTY (after VDU probe which may set nr_cons=0). */
+  line = tp - &tty_table[0];
+  if (line >= nr_cons) return;
+  cons = &cons_table[line];
+  cons->c_tty = tp;
+  cons->c_line = line;
+  tp->tty_priv = cons;
+
+  /* Fill in TTY function hooks. */
+  tp->tty_devwrite = cons_write;
+  tp->tty_echo = cons_echo;
+  tp->tty_ioctl = cons_ioctl;
 
   cons->c_start = line * page_size;
   cons->c_limit = cons->c_start + page_size;

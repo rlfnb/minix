@@ -34,6 +34,8 @@ CPPFLAGS+= -I${NETBSDSRCDIR}/minix
 # kernel headers are always called through kernel/*.h, this
 # time for generated headers, during cross compilation
 CPPFLAGS+= -I${.OBJDIR}/..
+# Generated headers (procoffsets.h etc.) live in .OBJDIR when using obj dirs
+CPPFLAGS+= -I${.OBJDIR}
 
 # Machine-dependent headers, order is important! 
 CPPFLAGS+= -I${.CURDIR}/arch/${MACHINE_ARCH}

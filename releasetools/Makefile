@@ -9,22 +9,30 @@ PROGROOT:= ..
 PROGROOT:= ${MAKEOBJDIR:S,releasetools,,}
 .endif
 
+# When using obj subdirectories, binaries end up in <dir>/obj/<prog>
+# instead of <dir>/<prog>.  Detect this by checking for the kernel.
+.if exists(${PROGROOT}/minix/kernel/obj/kernel)
+_O:= /obj
+.else
+_O:=
+.endif
+
 # Specify the programs that are part of the system image.
-KERNEL= ${PROGROOT}/minix/kernel/kernel
+KERNEL= ${PROGROOT}/minix/kernel${_O}/kernel
 
 # PROGRAMS are in the order they should be loaded by boot
-PROGRAMS+= ${PROGROOT}/minix/servers/ds/ds
-PROGRAMS+= ${PROGROOT}/minix/servers/rs/rs
-PROGRAMS+= ${PROGROOT}/minix/servers/pm/pm
-PROGRAMS+= ${PROGROOT}/minix/servers/sched/sched
-PROGRAMS+= ${PROGROOT}/minix/servers/vfs/vfs
-PROGRAMS+= ${PROGROOT}/minix/drivers/storage/memory/memory
-PROGRAMS+= ${PROGROOT}/minix/drivers/tty/tty/tty
-PROGRAMS+= ${PROGROOT}/minix/servers/mib/mib
-PROGRAMS+= ${PROGROOT}/minix/servers/vm/vm
-PROGRAMS+= ${PROGROOT}/minix/fs/pfs/pfs
-PROGRAMS+= ${PROGROOT}/minix/fs/mfs/mfs
-PROGRAMS+= ${PROGROOT}/sbin/init/init
+PROGRAMS+= ${PROGROOT}/minix/servers/ds${_O}/ds
+PROGRAMS+= ${PROGROOT}/minix/servers/rs${_O}/rs
+PROGRAMS+= ${PROGROOT}/minix/servers/pm${_O}/pm
+PROGRAMS+= ${PROGROOT}/minix/servers/sched${_O}/sched
+PROGRAMS+= ${PROGROOT}/minix/servers/vfs${_O}/vfs
+PROGRAMS+= ${PROGROOT}/minix/drivers/storage/memory${_O}/memory
+PROGRAMS+= ${PROGROOT}/minix/drivers/tty/tty${_O}/tty
+PROGRAMS+= ${PROGROOT}/minix/servers/mib${_O}/mib
+PROGRAMS+= ${PROGROOT}/minix/servers/vm${_O}/vm
+PROGRAMS+= ${PROGROOT}/minix/fs/pfs${_O}/pfs
+PROGRAMS+= ${PROGROOT}/minix/fs/mfs${_O}/mfs
+PROGRAMS+= ${PROGROOT}/sbin/init${_O}/init
 
 all usage help:
 	@echo " " >&2

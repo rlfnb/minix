@@ -14,9 +14,11 @@ LDADD+=	-lblockdriver -lchardriver
 
 CPPFLAGS.memory.c+=	-I${NETBSDSRCDIR}/minix
 
+RAMDISK_IMAGE= ${RAMDISK_PATH}/obj/image
+
 imgrd.d: touch-genfiles
 touch-genfiles:
-	[ -e ../ramdisk/image ] || touch -t 197001020000.00 ../ramdisk/image
+	[ -e ${RAMDISK_IMAGE} ] || touch -t 197001020000.00 ${RAMDISK_IMAGE}
 
 
 .SUFFIXES:      .mfs .c .o
@@ -25,13 +27,12 @@ touch-genfiles:
 	${_MKTARGET_CREATE}
 	${OBJCOPY} -Ibinary -B${MACHINE_CPU} -O${MACHINE_GNU_PLATFORM} $< $@
 
-CLEANFILES+=	../ramdisk/image
 # BJG - don't invoke parallel Makes
-#../ramdisk/image: .PHONY
+#${RAMDISK_IMAGE}: .PHONY
 #	${MAKE} -C ${RAMDISK_PATH} image
 
 CLEANFILES+=	imgrd.mfs
-imgrd.mfs: ../ramdisk/image
-	${HOST_LN} -fs ../ramdisk/image $@
+imgrd.mfs: ${RAMDISK_IMAGE}
+	${HOST_LN} -fs ${RAMDISK_IMAGE} $@
 
 .include <minix.service.mk>

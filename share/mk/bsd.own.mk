@@ -1110,11 +1110,10 @@ ARM_APCS_FLAGS+=${${ACTIVE_CC} == "gcc":? -marm :}
 ARM_APCS_FLAGS+=${${ACTIVE_CC} == "clang":? -target ${MACHINE_GNU_ARCH}--netbsdelf -B ${TOOLDIR}/${MACHINE_GNU_PLATFORM}/bin :}
 .endif
 
-# When using host clang (MKLLVM=no), the integrated assembler works fine
-# and -no-integrated-as would require a separate GNU as.
-.if ${MKLLVM:Uno} == "yes"
+# genassym uses inline asm with dummy strings that the integrated assembler
+# rejects.  -no-integrated-as disables validation; with -S no external
+# assembler is actually invoked.
 GENASSYM_CPPFLAGS+=	${${ACTIVE_CC} == "clang":? -no-integrated-as :}
-.endif
 
 TARGETS+=	all clean cleandir depend dependall includes \
 		install lint obj regress tags html analyze

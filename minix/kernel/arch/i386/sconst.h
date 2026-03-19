@@ -2,7 +2,7 @@
 #define __SCONST_H__
 
 #include "kernel/const.h"
-#include "kernel/procoffsets.h"
+#include "procoffsets.h"
 
 /*
  * offset to current process pointer right after trap, we assume we always have

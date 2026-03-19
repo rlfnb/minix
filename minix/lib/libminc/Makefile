@@ -129,7 +129,7 @@ CLEANFILES+= ${f:C/\.o/.bc/}
 CPPFLAGS.sha2.c+=	-I${NETBSDSRCDIR}/sys
 
 .for f in \
-	ashrdi3.o divdi3.o lshrdi3.o moddi3.o \
+	ashldi3.o ashrdi3.o divdi3.o lshrdi3.o moddi3.o \
 	udivdi3.o umoddi3.o umodsi3.o udivsi3.o \
 	udivmoddi4.o divsi3.o modsi3.o divmoddi4.o \
 	divmodsi4.o udivmodsi4.o #qdivrem.o lshldi3.o 

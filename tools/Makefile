@@ -38,7 +38,7 @@ TOOLCHAIN_BITS+= mpc .WAIT
 . endif
 .endif
 
-.if ${TOOLCHAIN_MISSING} == "no"
+.if ${TOOLCHAIN_MISSING} == "no" && ${MKBINUTILS:Uyes} != "no"
 TOOLCHAIN_BITS+= binutils .WAIT
 .endif
 

@@ -1,4 +1,4 @@
-# $NetBSD: Makefile,v 1.6 2014/03/07 18:37:48 christos Exp $
+# $NetBSD: Makefile,v 1.14 2021/04/12 06:08:31 mrg Exp $
 
 LIB=		sqlite3
 INCS=		sqlite3.h sqlite3ext.h
@@ -8,6 +8,9 @@ SRCS=		sqlite3.c
 
 CFLAGS+=	-DNDEBUG
 
+LDADD+=		-lm
+DPADD+=		${LIBM}
+
 FILES+=			sqlite3.pc
 FILESOWN_sqlite3.pc=	${BINOWN}
 FILESGRP_sqlite3.pc=	${BINGRP}
@@ -16,15 +19,16 @@ FILESDIR_sqlite3.pc=	/usr/lib/pkgconfig
 
 CLEANFILES+=sqlite3.pc
 
-.include <bsd.lib.mk>
+CWARNFLAGS.clang+=	-Wno-error=implicit-int-float-conversion
+COPTS.sqlite3.c+=	${GCC_NO_RETURN_LOCAL_ADDR}
 
-.if defined(__MINIX)
-.if !empty(DBG:M-Og) || !empty(CFLAGS:M-Og) || \
-	!empty(DBG:M-g) || !empty(CFLAGS:M-g)
-#LSC: -Wno-maybe-uninitialized while compiling with -DNDEBUG -Og
-CWARNFLAGS.gcc+=	-Wno-maybe-uninitialized
+.include <bsd.own.mk>
+
+.if ${MACHINE_CPU} == "m68k"
+CWARNFLAGS+=	-Wa,--warn
 .endif
-.endif # defined(__MINIX)
+
+.include <bsd.lib.mk>
 
 all: sqlite3.pc
 dependall: all

@@ -92,13 +92,10 @@
 ./usr/include/c++/__locale                              minix-comp      libcxx
 ./usr/include/c++/__mutex_base                          minix-comp      libcxx
 ./usr/include/c++/__split_buffer                        minix-comp      libcxx
-./usr/include/c++/__sso_allocator                       minix-comp      libcxx
 ./usr/include/c++/__std_stream                          minix-comp      libcxx
 ./usr/include/c++/__tree                                minix-comp      libcxx
 ./usr/include/c++/__tuple                               minix-comp      libcxx
 ./usr/include/c++/__tuple_03                            minix-comp      libcxx,obsolete
-./usr/include/c++/__undef___deallocate                  minix-comp      libcxx
-./usr/include/c++/__undef_min_max                       minix-comp      libcxx
 ./usr/include/c++/algorithm                             minix-comp      libcxx
 ./usr/include/c++/array                                 minix-comp      libcxx
 ./usr/include/c++/atomic                                minix-comp      libcxx
@@ -142,13 +139,6 @@
 ./usr/include/c++/experimental                          minix-comp      libcxx
 ./usr/include/c++/experimental/__config                 minix-comp      libcxx
 ./usr/include/c++/experimental/algorithm                minix-comp      libcxx
-./usr/include/c++/experimental/chrono                   minix-comp      libcxx
-./usr/include/c++/experimental/dynarray                 minix-comp      libcxx
-./usr/include/c++/experimental/optional                 minix-comp      libcxx
-./usr/include/c++/experimental/ratio                    minix-comp      libcxx
-./usr/include/c++/experimental/string_view              minix-comp      libcxx
-./usr/include/c++/experimental/system_error             minix-comp      libcxx
-./usr/include/c++/experimental/tuple                    minix-comp      libcxx
 ./usr/include/c++/experimental/type_traits              minix-comp      libcxx
 ./usr/include/c++/experimental/utility                  minix-comp      libcxx
 ./usr/include/c++/ext                                   minix-comp      libcxx
@@ -2183,3 +2173,101 @@
 ./var/db                                                minix-comp
 ./var/db/obsolete                                       minix-comp
 ./var/db/obsolete/minix-comp                            minix-comp
+./usr/include/c++/__availability                                 minix-comp
+./usr/include/c++/__bits                                 minix-comp
+./usr/include/c++/__bsd_locale_defaults.h                                 minix-comp
+./usr/include/c++/__bsd_locale_fallbacks.h                                 minix-comp
+./usr/include/c++/__config_site                                 minix-comp
+./usr/include/c++/__errc                                 minix-comp
+./usr/include/c++/__iterator                                 minix-comp
+./usr/include/c++/__iterator/concepts.h                                 minix-comp
+./usr/include/c++/__iterator/incrementable_traits.h                                 minix-comp
+./usr/include/c++/__iterator/iter_move.h                                 minix-comp
+./usr/include/c++/__iterator/iterator_traits.h                                 minix-comp
+./usr/include/c++/__iterator/readable_traits.h                                 minix-comp
+./usr/include/c++/__libcpp_version                                 minix-comp
+./usr/include/c++/__memory                                 minix-comp
+./usr/include/c++/__memory/addressof.h                                 minix-comp
+./usr/include/c++/__memory/allocation_guard.h                                 minix-comp
+./usr/include/c++/__memory/allocator.h                                 minix-comp
+./usr/include/c++/__memory/allocator_traits.h                                 minix-comp
+./usr/include/c++/__memory/auto_ptr.h                                 minix-comp
+./usr/include/c++/__memory/compressed_pair.h                                 minix-comp
+./usr/include/c++/__memory/construct_at.h                                 minix-comp
+./usr/include/c++/__memory/pointer_safety.h                                 minix-comp
+./usr/include/c++/__memory/pointer_traits.h                                 minix-comp
+./usr/include/c++/__memory/raw_storage_iterator.h                                 minix-comp
+./usr/include/c++/__memory/shared_ptr.h                                 minix-comp
+./usr/include/c++/__memory/temporary_buffer.h                                 minix-comp
+./usr/include/c++/__memory/uninitialized_algorithms.h                                 minix-comp
+./usr/include/c++/__memory/unique_ptr.h                                 minix-comp
+./usr/include/c++/__node_handle                                 minix-comp
+./usr/include/c++/__nullptr                                 minix-comp
+./usr/include/c++/__ranges                                 minix-comp
+./usr/include/c++/__ranges/access.h                                 minix-comp
+./usr/include/c++/__ranges/concepts.h                                 minix-comp
+./usr/include/c++/__ranges/data.h                                 minix-comp
+./usr/include/c++/__ranges/empty.h                                 minix-comp
+./usr/include/c++/__ranges/enable_borrowed_range.h                                 minix-comp
+./usr/include/c++/__ranges/size.h                                 minix-comp
+./usr/include/c++/__ranges/view.h                                 minix-comp
+./usr/include/c++/__string                                 minix-comp
+./usr/include/c++/__support                                 minix-comp
+./usr/include/c++/__threading_support                                 minix-comp
+./usr/include/c++/__undef_macros                                 minix-comp
+./usr/include/c++/__utility                                 minix-comp
+./usr/include/c++/__utility/to_underlying.h                                 minix-comp
+./usr/include/c++/any                                 minix-comp
+./usr/include/c++/barrier                                 minix-comp
+./usr/include/c++/bit                                 minix-comp
+./usr/include/c++/charconv                                 minix-comp
+./usr/include/c++/compare                                 minix-comp
+./usr/include/c++/concepts                                 minix-comp
+./usr/include/c++/ctype.h                                 minix-comp
+./usr/include/c++/errno.h                                 minix-comp
+./usr/include/c++/execution                                 minix-comp
+./usr/include/c++/experimental/__memory                                 minix-comp
+./usr/include/c++/experimental/coroutine                                 minix-comp
+./usr/include/c++/experimental/deque                                 minix-comp
+./usr/include/c++/experimental/filesystem                                 minix-comp
+./usr/include/c++/experimental/forward_list                                 minix-comp
+./usr/include/c++/experimental/functional                                 minix-comp
+./usr/include/c++/experimental/iterator                                 minix-comp
+./usr/include/c++/experimental/list                                 minix-comp
+./usr/include/c++/experimental/map                                 minix-comp
+./usr/include/c++/experimental/memory_resource                                 minix-comp
+./usr/include/c++/experimental/propagate_const                                 minix-comp
+./usr/include/c++/experimental/regex                                 minix-comp
+./usr/include/c++/experimental/set                                 minix-comp
+./usr/include/c++/experimental/simd                                 minix-comp
+./usr/include/c++/experimental/string                                 minix-comp
+./usr/include/c++/experimental/unordered_map                                 minix-comp
+./usr/include/c++/experimental/unordered_set                                 minix-comp
+./usr/include/c++/experimental/vector                                 minix-comp
+./usr/include/c++/fenv.h                                 minix-comp
+./usr/include/c++/filesystem                                 minix-comp
+./usr/include/c++/float.h                                 minix-comp
+./usr/include/c++/format                                 minix-comp
+./usr/include/c++/inttypes.h                                 minix-comp
+./usr/include/c++/latch                                 minix-comp
+./usr/include/c++/limits.h                                 minix-comp
+./usr/include/c++/locale.h                                 minix-comp
+./usr/include/c++/math.h                                 minix-comp
+./usr/include/c++/module.modulemap                                 minix-comp
+./usr/include/c++/numbers                                 minix-comp
+./usr/include/c++/optional                                 minix-comp
+./usr/include/c++/ranges                                 minix-comp
+./usr/include/c++/semaphore                                 minix-comp
+./usr/include/c++/setjmp.h                                 minix-comp
+./usr/include/c++/span                                 minix-comp
+./usr/include/c++/stdbool.h                                 minix-comp
+./usr/include/c++/stddef.h                                 minix-comp
+./usr/include/c++/stdint.h                                 minix-comp
+./usr/include/c++/stdio.h                                 minix-comp
+./usr/include/c++/stdlib.h                                 minix-comp
+./usr/include/c++/string.h                                 minix-comp
+./usr/include/c++/string_view                                 minix-comp
+./usr/include/c++/variant                                 minix-comp
+./usr/include/c++/version                                 minix-comp
+./usr/include/c++/wchar.h                                 minix-comp
+./usr/include/c++/wctype.h                                 minix-comp

@@ -751,3 +751,37 @@
 # this one is for term(1)
 /set type=dir uid=0 gid=5 mode=775
 ./usr/spool/locks
+./usr/share/man
+./usr/share/man/man1
+./usr/share/man/man2
+./usr/share/man/man3
+./usr/share/man/man4
+./usr/share/man/man5
+./usr/share/man/man6
+./usr/share/man/man7
+./usr/share/man/man8
+./usr/share/man/man9
+./usr/share/man/cat1
+./usr/share/man/cat2
+./usr/share/man/cat3
+./usr/share/man/cat4
+./usr/share/man/cat5
+./usr/share/man/cat6
+./usr/share/man/cat7
+./usr/share/man/cat8
+./usr/share/man/cat9
+./usr/share/man/html1
+./usr/share/man/html2
+./usr/share/man/html3
+./usr/share/man/html4
+./usr/share/man/html5
+./usr/share/man/html6
+./usr/share/man/html7
+./usr/share/man/html8
+./usr/share/man/html9
+./usr/share/xml
+./usr/share/xml/atf
+./usr/share/xsl
+./usr/share/xsl/atf
+./usr/share/info
+./usr/share/locale

@@ -64,6 +64,9 @@ __RCSID("$NetBSD: fsutil.c,v 1.26 2015/06/21 04:01:40 dholland Exp $");
 #include "fsutil.h"
 #include "exitvalues.h"
 
+/* Definition of ckfinish (declared extern in fsutil.h) */
+void (*ckfinish)(int);
+
 volatile sig_atomic_t returntosingle;
 
 static const char *dev = NULL;

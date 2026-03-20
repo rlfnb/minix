@@ -94,7 +94,7 @@ __warn_references(__findenv,
 /* Our initialization function. */
 void __libc_env_init(void);
 
-char **environ;
+__attribute__((weak)) char **environ;
 
 /*ARGSUSED*/
 static signed int

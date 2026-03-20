@@ -60,17 +60,17 @@ static const unsigned int pkg_key_usage = XKU_CODE_SIGN | XKU_SMIME;
 static int
 check_ca(X509 *cert)
 {
-	if ((cert->ex_flags & EXFLAG_KUSAGE) != 0 &&
-	    (cert->ex_kusage & KU_KEY_CERT_SIGN) != KU_KEY_CERT_SIGN)
+	if ((X509_get_extension_flags(cert) & EXFLAG_KUSAGE) != 0 &&
+	    (X509_get_key_usage(cert) & KU_KEY_CERT_SIGN) != KU_KEY_CERT_SIGN)
 		return 0;
-	if ((cert->ex_flags & EXFLAG_BCONS) != 0)
-		return (cert->ex_flags & EXFLAG_CA) == EXFLAG_CA;
-	if ((cert->ex_flags & (EXFLAG_V1|EXFLAG_SS)) == (EXFLAG_V1|EXFLAG_SS))
+	if ((X509_get_extension_flags(cert) & EXFLAG_BCONS) != 0)
+		return (X509_get_extension_flags(cert) & EXFLAG_CA) == EXFLAG_CA;
+	if ((X509_get_extension_flags(cert) & (EXFLAG_V1|EXFLAG_SS)) == (EXFLAG_V1|EXFLAG_SS))
 		return 1;
-	if ((cert->ex_flags & EXFLAG_KUSAGE) != 0)
+	if ((X509_get_extension_flags(cert) & EXFLAG_KUSAGE) != 0)
 		return 1;
-	if ((cert->ex_flags & EXFLAG_NSCERT) != 0 &&
-	    (cert->ex_nscert & NS_ANY_CA) != 0)
+	if ((X509_get_extension_flags(cert) & EXFLAG_NSCERT) != 0 &&
+	    (X509_get_extended_key_usage(cert) & NS_ANY_CA) != 0)
 		return 1;
 	return 0;
 }
@@ -185,13 +185,13 @@ easy_pkcs7_verify(const char *content, size_t len,
 			goto cleanup;
 		}
 		if (is_pkg) {
-			if (sk_X509_value(signers, i)->ex_xkusage != pkg_key_usage) {
+			if (X509_get_extended_key_usage(sk_X509_value(signers, i)) != pkg_key_usage) {
 				warnx("Certificate must have CODE SIGNING "
 				    "and EMAIL PROTECTION property");
 				goto cleanup;
 			}
 		} else {
-			if (sk_X509_value(signers, i)->ex_xkusage != 0) {
+			if (X509_get_extended_key_usage(sk_X509_value(signers, i)) != 0) {
 				warnx("Certificate must not have any property");
 				goto cleanup;
 			}
@@ -276,7 +276,7 @@ easy_pkcs7_sign(const char *content, size_t len,
 		goto cleanup;
 	}
 
-	if (certificate->ex_xkusage != pkg_key_usage) {
+	if (X509_get_extended_key_usage(certificate) != pkg_key_usage) {
 		warnx("Certificate must have CODE SIGNING "
 		    "and EMAIL PROTECTION property");
 		goto cleanup;

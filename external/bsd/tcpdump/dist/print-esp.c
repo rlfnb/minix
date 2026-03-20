@@ -136,7 +136,7 @@ int esp_print_decrypt_buffer_by_ikev2(netdissect_options *ndo,
 	struct sa_list *sa;
 	u_char *iv;
 	int len;
-	EVP_CIPHER_CTX ctx;
+	EVP_CIPHER_CTX *ctx = EVP_CIPHER_CTX_new();
 
 	/* initiator arg is any non-zero value */
 	if(initiator) initiator=1;
@@ -164,12 +164,12 @@ int esp_print_decrypt_buffer_by_ikev2(netdissect_options *ndo,
 
 	if(end <= buf) return 0;
 
-	memset(&ctx, 0, sizeof(ctx));
-	if (EVP_CipherInit(&ctx, sa->evp, sa->secret, NULL, 0) < 0)
+	
+	if (EVP_CipherInit(ctx, sa->evp, sa->secret, NULL, 0) < 0)
 		(*ndo->ndo_warning)(ndo, "espkey init failed");
-	EVP_CipherInit(&ctx, NULL, NULL, iv, 0);
-	EVP_Cipher(&ctx, buf, buf, len);
-	EVP_CIPHER_CTX_cleanup(&ctx);
+	EVP_CipherInit(ctx, NULL, NULL, iv, 0);
+	EVP_Cipher(ctx, buf, buf, len);
+	EVP_CIPHER_CTX_free(ctx);
 
 	ndo->ndo_packetp = buf;
 	ndo->ndo_snapend = end;
@@ -580,7 +580,7 @@ esp_print(netdissect_options *ndo,
 	int ivlen = 0;
 	u_char *ivoff;
 	u_char *p;
-	EVP_CIPHER_CTX ctx;
+	EVP_CIPHER_CTX *ctx = EVP_CIPHER_CTX_new();
 #endif
 
 	esp = (struct newesp *)bp;
@@ -686,14 +686,14 @@ esp_print(netdissect_options *ndo,
 	ep = ep - sa->authlen;
 
 	if (sa->evp) {
-		memset(&ctx, 0, sizeof(ctx));
-		if (EVP_CipherInit(&ctx, sa->evp, secret, NULL, 0) < 0)
+		
+		if (EVP_CipherInit(ctx, sa->evp, secret, NULL, 0) < 0)
 			(*ndo->ndo_warning)(ndo, "espkey init failed");
 
 		p = ivoff;
-		EVP_CipherInit(&ctx, NULL, NULL, p, 0);
-		EVP_Cipher(&ctx, p + ivlen, p + ivlen, ep - (p + ivlen));
-		EVP_CIPHER_CTX_cleanup(&ctx);
+		EVP_CipherInit(ctx, NULL, NULL, p, 0);
+		EVP_Cipher(ctx, p + ivlen, p + ivlen, ep - (p + ivlen));
+		EVP_CIPHER_CTX_free(ctx);
 		advance = ivoff - (u_char *)esp + ivlen;
 	} else
 		advance = sizeof(struct newesp);

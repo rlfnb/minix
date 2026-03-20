@@ -8,7 +8,10 @@ USE_FORT?= yes	# network server
 LINTFLAGS+=-X 132,247,135,259,117,298
 
 PROG=	syslogd
-SRCS=	syslogd.c utmpentry.c tls.c sign.c
+SRCS=	syslogd.c utmpentry.c
+# syslogd TLS/Sign code uses OpenSSL 1.0 internal APIs not available in 3.0.
+# Disable until ported.
+CPPFLAGS+=-DDISABLE_TLS -DDISABLE_SIGN
 MAN=	syslogd.8 syslog.conf.5
 DPADD+=${LIBUTIL} ${LIBEVENT}
 LDADD+=-lutil -levent
@@ -26,11 +29,5 @@ CPPFLAGS+=-DINET6
 CPPFLAGS+=-DLIBWRAP
 LDADD+=	-lwrap
 DPADD+=	${LIBWRAP}
-
-.if ${MKCRYPTO} != "no"
-LDADD+=	-lssl -lcrypto
-.else
-CPPFLAGS+=-DDISABLE_TLS -DDISABLE_SIGN
-.endif
 
 .include <bsd.prog.mk>

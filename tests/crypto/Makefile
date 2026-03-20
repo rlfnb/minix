@@ -2,7 +2,8 @@
 
 .include <bsd.own.mk>
 
-TESTS_SUBDIRS=		libcrypto
+# libcrypto tests reference OpenSSL 1.0 test files not available in 3.0
+#TESTS_SUBDIRS=		libcrypto
 .if !defined(__MINIX)
 TESTS_SUBDIRS+=		opencrypto
 .endif # !defined(__MINIX)

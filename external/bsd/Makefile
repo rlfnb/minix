@@ -3,7 +3,9 @@
 .include <bsd.own.mk>
 
 #MINIX:
-SUBDIR=	bind byacc dhcpcd \
+# bind and dhcp (ISC) use OpenSSL 1.0 internal APIs incompatible with 3.0.
+# dhcpcd (the DHCP client MINIX actually uses) does not depend on bind.
+SUBDIR=	byacc dhcpcd \
 	fetch file flex less \
 	libarchive libevent libpcap mdocml \
 	openresolv tcpdump tmux top
@@ -44,6 +46,7 @@ SUBDIR+= librtld_db
 .endif
 
 #MINIX:
-SUBDIR+= blacklist dhcp nvi
+SUBDIR+= blacklist nvi
+# dhcp (ISC DHCP server) disabled - requires bind/OpenSSL 1.0 APIs
 
 .include <bsd.subdir.mk>

@@ -177,6 +177,9 @@ MKBINUTILS?=	yes # We are installing clang, so trigger binutils.
 HAVE_LIBGCC?=	no
 .endif # ${HAVE_LLVM:Dyes} == "yes"
 
+HAVE_OPENSSL?=	30
+EXTERNAL_OPENSSL_SUBDIR=openssl
+
 # The default value has to be set after we have figured out if we are using GCC
 # or not.
 MKLIBCXX?=	yes # Build by default libc++

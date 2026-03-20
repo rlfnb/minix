@@ -6,7 +6,7 @@
 #	libbluetooth
 #	libobjc libposix libppath libpthread
 #	librt libtre semaphore
-TESTS_SUBDIRS=	csu libc libcrypt libcurses libevent libexecinfo \
+TESTS_SUBDIRS=	csu libc libcrypt libcurses libexecinfo \
 		libm libprop  \
 		libutil
 

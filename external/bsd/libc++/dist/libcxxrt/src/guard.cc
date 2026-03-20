@@ -43,18 +43,9 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdio.h>
-
-#if !defined(__minix)
+#ifndef _LIBCPP_HAS_NO_THREADS
 #include <pthread.h>
-#else
-#define _MTHREADIFY_PTHREADS 1 
-#include <minix/mthread.h>
-#pragma weak sched_yield
-#define sched_yield() do {\
-	if (sched_yield) sched_yield();\
-	} while(0)
-#endif /* !defined(__minix) */
-
+#endif
 #include <assert.h>
 #include "atomic.h"
 
@@ -169,7 +160,9 @@ extern "C" int __cxa_guard_acquire(volatile guard_t *guard_object)
 		if (INIT_PART(guard_object) != LOCK_PART(guard_object) &&
 		    INITIALISED == *INIT_PART(guard_object))
 			return 0;
+#ifndef _LIBCPP_HAS_NO_THREADS
 		sched_yield();
+#endif
 	}
 }
 

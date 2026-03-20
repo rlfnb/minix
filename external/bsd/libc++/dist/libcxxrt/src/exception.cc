@@ -29,20 +29,15 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdint.h>
-
-#if !defined(__minix)
+#ifndef _LIBCPP_HAS_NO_THREADS
 #include <pthread.h>
-#else
-#define _MTHREADIFY_PTHREADS 1 
-#include <minix/mthread.h>
-#define LIBCXXRT_WEAK_LOCKS 1
-#endif /* !defined(__minix) */
-
+#endif
 #include "typeinfo.h"
 #include "dwarf_eh.h"
 #include "atomic.h"
 #include "cxxabi.h"
 
+#ifndef _LIBCPP_HAS_NO_THREADS
 #pragma weak pthread_key_create
 #pragma weak pthread_setspecific
 #pragma weak pthread_getspecific
@@ -64,6 +59,26 @@
 #define pthread_cond_wait(cv, mtx) do {\
 	if (pthread_cond_wait) pthread_cond_wait(cv, mtx);\
 	} while(0)
+#endif
+#endif // _LIBCPP_HAS_NO_THREADS
+
+#ifdef _LIBCPP_HAS_NO_THREADS
+// Stub out threading primitives for single-threaded MINIX
+typedef int pthread_key_t;
+typedef int pthread_once_t;
+typedef int pthread_mutex_t;
+typedef int pthread_cond_t;
+#define PTHREAD_ONCE_INIT 0
+#define PTHREAD_MUTEX_INITIALIZER 0
+#define PTHREAD_COND_INITIALIZER 0
+static inline int pthread_key_create(pthread_key_t *, void(*)(void*)) { return 0; }
+static inline int pthread_setspecific(pthread_key_t, const void *) { return 0; }
+static inline void *pthread_getspecific(pthread_key_t) { return 0; }
+static inline int pthread_once(pthread_once_t *, void(*)(void)) { return 0; }
+static inline int pthread_mutex_lock(pthread_mutex_t *) { return 0; }
+static inline int pthread_mutex_unlock(pthread_mutex_t *) { return 0; }
+static inline int pthread_cond_signal(pthread_cond_t *) { return 0; }
+static inline int pthread_cond_wait(pthread_cond_t *, pthread_mutex_t *) { return 0; }
 #endif
 
 using namespace ABI_NAMESPACE;
@@ -312,13 +327,17 @@ static pthread_key_t eh_key;
 static void exception_cleanup(_Unwind_Reason_Code reason, 
                               struct _Unwind_Exception *ex)
 {
-	__cxa_free_exception(static_cast<void*>(ex));
+	// Exception layout:
+	// [__cxa_exception [_Unwind_Exception]] [exception object]
+	//
+	// __cxa_free_exception expects a pointer to the exception object
+	__cxa_free_exception(static_cast<void*>(ex + 1));
 }
 static void dependent_exception_cleanup(_Unwind_Reason_Code reason, 
                               struct _Unwind_Exception *ex)
 {
 
-	__cxa_free_dependent_exception(static_cast<void*>(ex));
+	__cxa_free_dependent_exception(static_cast<void*>(ex + 1));
 }
 
 /**
@@ -348,7 +367,8 @@ static void thread_cleanup(void* thread_info)
 		if (info->foreign_exception_state != __cxa_thread_info::none)
 		{
 			_Unwind_Exception *e = reinterpret_cast<_Unwind_Exception*>(info->globals.caughtExceptions);
-			e->exception_cleanup(_URC_FOREIGN_EXCEPTION_CAUGHT, e);
+			if (e->exception_cleanup)
+				e->exception_cleanup(_URC_FOREIGN_EXCEPTION_CAUGHT, e);
 		}
 		else
 		{
@@ -524,7 +544,7 @@ static void emergency_malloc_free(char *ptr)
 			break;
 		}
 	}
-	assert(buffer > 0 &&
+	assert(buffer >= 0 &&
 	       "Trying to free something that is not an emergency buffer!");
 	// emergency_malloc() is expected to return 0-initialized data.  We don't
 	// zero the buffer when allocating it, because the static buffers will
@@ -564,7 +584,7 @@ static void free_exception(char *e)
 {
 	// If this allocation is within the address range of the emergency buffer,
 	// don't call free() because it was not allocated with malloc()
-	if ((e > emergency_buffer) &&
+	if ((e >= emergency_buffer) &&
 	    (e < (emergency_buffer + sizeof(emergency_buffer))))
 	{
 		emergency_malloc_free(e);
@@ -861,6 +881,13 @@ extern "C" void __cxa_rethrow()
 	}
 
 	assert(ex->handlerCount > 0 && "Rethrowing uncaught exception!");
+
+	// `globals->uncaughtExceptions` was decremented by `__cxa_begin_catch`.
+	// It's normally incremented by `throw_exception`, but this path invokes
+	// `_Unwind_Resume_or_Rethrow` directly to rethrow the exception.
+	// This path is only reachable if we're rethrowing a C++ exception -
+	// foreign exceptions don't adjust any of this state.
+	globals->uncaughtExceptions++;
 
 	// ex->handlerCount will be decremented in __cxa_end_catch in enclosing
 	// catch block
@@ -1207,11 +1234,13 @@ extern "C" void *__cxa_begin_catch(void *e)
 	// we see is a foreign exception then we won't have called it yet.
 	__cxa_thread_info *ti = thread_info();
 	__cxa_eh_globals *globals = &ti->globals;
-	globals->uncaughtExceptions--;
 	_Unwind_Exception *exceptionObject = static_cast<_Unwind_Exception*>(e);
 
 	if (isCXXException(exceptionObject->exception_class))
 	{
+		// Only exceptions thrown with a C++ exception throwing function will
+		// increment this, so don't decrement it here.
+		globals->uncaughtExceptions--;
 		__cxa_exception *ex =  exceptionFromPointer(exceptionObject);
 
 		if (ex->handlerCount == 0)
@@ -1288,12 +1317,13 @@ extern "C" void __cxa_end_catch()
 	
 	if (ti->foreign_exception_state != __cxa_thread_info::none)
 	{
-		globals->caughtExceptions = 0;
 		if (ti->foreign_exception_state != __cxa_thread_info::rethrown)
 		{
 			_Unwind_Exception *e = reinterpret_cast<_Unwind_Exception*>(ti->globals.caughtExceptions);
-			e->exception_cleanup(_URC_FOREIGN_EXCEPTION_CAUGHT, e);
+			if (e->exception_cleanup)
+				e->exception_cleanup(_URC_FOREIGN_EXCEPTION_CAUGHT, e);
 		}
+		globals->caughtExceptions = 0;
 		ti->foreign_exception_state = __cxa_thread_info::none;
 		return;
 	}
@@ -1347,6 +1377,14 @@ extern "C" std::type_info *__cxa_current_exception_type()
 }
 
 /**
+ * Cleanup, ensures that `__cxa_end_catch` is called to balance an explicit
+ * `__cxa_begin_catch` call.
+ */
+static void end_catch(char *)
+{
+	__cxa_end_catch();
+}
+/**
  * ABI function, called when an exception specification is violated.
  *
  * This function does not return.
@@ -1354,6 +1392,12 @@ extern "C" std::type_info *__cxa_current_exception_type()
 extern "C" void __cxa_call_unexpected(void*exception) 
 {
 	_Unwind_Exception *exceptionObject = static_cast<_Unwind_Exception*>(exception);
+	// Wrap the call to the unexpected handler in calls to `__cxa_begin_catch`
+	// and `__cxa_end_catch` so that we correctly update exception counts if
+	// the unexpected handler throws an exception.
+	__cxa_begin_catch(exceptionObject);
+	__attribute__((cleanup(end_catch)))
+	char unused;
 	if (exceptionObject->exception_class == exception_class)
 	{
 		__cxa_exception *ex =  exceptionFromPointer(exceptionObject);
@@ -1478,6 +1522,15 @@ namespace std
 	{
 		__cxa_thread_info *info = thread_info();
 		return info->globals.uncaughtExceptions != 0;
+	}
+	/**
+	 * Returns the number of exceptions currently being thrown that have not
+	 * been caught.  This can occur inside a nested catch statement.
+	 */
+	int uncaught_exceptions() throw()
+	{
+		__cxa_thread_info *info = thread_info();
+		return info->globals.uncaughtExceptions;
 	}
 	/**
 	 * Returns the current unexpected handler.

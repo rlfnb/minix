@@ -1,4 +1,4 @@
-#	$NetBSD: Makefile,v 1.7 2014/08/20 15:19:39 joerg Exp $
+#	$NetBSD: Makefile,v 1.14 2021/05/30 01:57:00 joerg Exp $
 
 LIB=		c++
 WARNS=		4
@@ -8,16 +8,26 @@ NOLINT=		# defined
 
 .PATH: ${LIBCXX_SRCDIR}/src
 
-#__MINIX: Unsupported for now: shared_mutex.cpp
-SRCS=	algorithm.cpp bind.cpp chrono.cpp condition_variable.cpp debug.cpp \
-	exception.cpp future.cpp hash.cpp ios.cpp iostream.cpp locale.cpp \
-	memory.cpp mutex.cpp new.cpp optional.cpp random.cpp regex.cpp \
-	stdexcept.cpp \
-	string.cpp strstream.cpp system_error.cpp thread.cpp \
-	utility.cpp valarray.cpp
+SRCS=	algorithm.cpp bind.cpp charconv.cpp chrono.cpp \
+	debug.cpp exception.cpp format.cpp \
+	functional.cpp hash.cpp ios.cpp ios.instantiations.cpp \
+	iostream.cpp locale.cpp memory.cpp \
+	new.cpp optional.cpp random.cpp random_shuffle.cpp regex.cpp \
+	stdexcept.cpp string.cpp strstream.cpp \
+	system_error.cpp utility.cpp valarray.cpp variant.cpp \
+	vector.cpp
+
+# Threading support - MINIX has no threads, but mutex.cpp provides
+# __call_once (with a no-threads fallback) needed by locale.cpp.
+SRCS+=	mutex.cpp mutex_destructor.cpp
+#SRCS+=	condition_variable.cpp condition_variable_destructor.cpp
+#SRCS+=	future.cpp shared_mutex.cpp thread.cpp
+
+.PATH: ${LIBCXX_SRCDIR}/src/filesystem
+SRCS+=	directory_iterator.cpp operations.cpp
+
 # typeinfo.cc: prefer libcxxrt's version
 
-#__MINIX: Unsupported for now:
 LIBCXXRT_SRCS+= \
 	auxhelper.cc dynamic_cast.cc exception.cc guard.cc \
 	stdexcept.cc terminate.cc typeinfo.cc libelftc_dem_gnu3.c
@@ -35,17 +45,24 @@ CLEANFILES+=	rt_${src}
 
 .include <bsd.own.mk>
 
-CPPFLAGS+=	-nostdinc++ -cxx-isystem ${LIBCXX_SRCDIR}/include -I${LIBCXXRT_SRCDIR}/src
-CPPFLAGS+=	-DLIBCXXRT
-CXXFLAGS+=	-std=c++11
+# Use source-tree headers only — not the (possibly stale) installed ones.
+# The clang++ wrapper adds -cxx-isystem destdir/usr/include/c++ which we
+# must override by placing the source-tree path first.
+CPPFLAGS+=	-nostdinc++
+CPPFLAGS+=	-cxx-isystem ${LIBCXX_SRCDIR}/include -cxx-isystem ${.CURDIR}/../include
+CPPFLAGS+=	-I${LIBCXXRT_SRCDIR}/src
+CPPFLAGS+=	-DLIBCXXRT -D_LIBCPP_BUILDING_LIBRARY
+# MINIX has no threading support
+CPPFLAGS+=	-D_LIBCPP_HAS_NO_THREADS
+CXXFLAGS+=	-std=gnu++17
 
 CWARNFLAGS.gcc+=	-Wno-error
 
 CWARNFLAGS.clang+=	-Wno-error=unused-variable -Wno-error=missing-noreturn
 CWARNFLAGS.clang+=	-Wno-error=missing-prototypes -Wno-error=sometimes-uninitialized
 CWARNFLAGS.clang+=	-Wno-error=missing-field-initializers -Wno-error=switch
-CWARNFLAGS.clang+=	-Wno-error=implicit-exception-spec-mismatch
+CWARNFLAGS.clang+=	-Wno-error=implicit-exception-spec-mismatch -Wno-error=format-nonliteral -Wno-error=format-security
 
-LDADD+=	-Wl,-z,defs
+LDFLAGS+=	-Wl,-z,defs
 
 .include <bsd.lib.mk>

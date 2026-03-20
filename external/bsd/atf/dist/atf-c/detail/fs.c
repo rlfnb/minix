@@ -301,21 +301,14 @@ static
 void
 replace_contents(atf_fs_path_t *p, const char *buf)
 {
-#if !defined(NDEBUG) && defined(__minix)
     atf_error_t err;
 
     PRE(atf_dynstr_length(&p->m_data) == strlen(buf));
 
-#endif /* !defined(NDEBUG) && defined(__minix) */
     atf_dynstr_clear(&p->m_data);
-#if !defined(NDEBUG) && defined(__minix)
-    err =
-#endif /* !defined(NDEBUG) && defined(__minix) */
-    	atf_dynstr_append_fmt(&p->m_data, "%s", buf);
+    err = atf_dynstr_append_fmt(&p->m_data, "%s", buf);
 
-#if !defined(NDEBUG) && defined(__minix)
     INV(!atf_is_error(err));
-#endif /* !defined(NDEBUG) && defined(__minix) */
 }
 
 static
@@ -805,7 +798,7 @@ atf_error_t
 atf_fs_mkdtemp(atf_fs_path_t *p)
 {
     atf_error_t err;
-    char *buf = NULL; /* MINIX: Complain in -O3 */
+    char *buf;
 
     if (!check_umask(S_IRWXU, S_IRWXU)) {
         err = invalid_umask_error(p, atf_fs_stat_dir_type, current_umask());
@@ -833,7 +826,7 @@ atf_error_t
 atf_fs_mkstemp(atf_fs_path_t *p, int *fdout)
 {
     atf_error_t err;
-    char *buf = NULL; /* MINIX: Complain in -O3 */
+    char *buf;
     int fd;
 
     if (!check_umask(S_IRWXU, S_IRWXU)) {

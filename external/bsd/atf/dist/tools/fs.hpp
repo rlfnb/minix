@@ -326,7 +326,7 @@ public:
 // ------------------------------------------------------------------------
 
 class temp_dir {
-    std::auto_ptr< tools::fs::path > m_path;
+    std::unique_ptr< tools::fs::path > m_path;
 
 public:
     temp_dir(const tools::fs::path&);
@@ -368,6 +368,7 @@ void remove(const path&);
 void rmdir(const path&);
 
 tools::fs::path change_directory(const tools::fs::path&);
+void change_ownership(const tools::fs::path&, const std::pair< int, int >&);
 void cleanup(const tools::fs::path&);
 tools::fs::path get_current_dir(void);
 

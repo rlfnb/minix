@@ -1,4 +1,4 @@
-// Copyright 2012 Google Inc.
+// Copyright 2010 Google Inc.
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -26,30 +26,38 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-/// \file cli/cmd_report_tap.hpp
-/// Provides the cmd_report_tap class.
+/// \file utils/defs.hpp
+///
+/// Definitions for compiler and system features autodetected at configuration
+/// time.
 
-#if !defined(CLI_CMD_REPORT_TAP_HPP)
-#define CLI_CMD_REPORT_TAP_HPP
-
-#include "cli/common.hpp"
-#include "utils/cmdline/ui.hpp"
-
-namespace cli {
+#if !defined(UTILS_DEFS_HPP)
+#define UTILS_DEFS_HPP
 
 
-/// Implementation of the "report-tap" subcommand.
-class cmd_report_tap : public cli_command
-{
-public:
-    cmd_report_tap(void);
-
-    int run(utils::cmdline::ui*, const utils::cmdline::parsed_cmdline&,
-            const utils::config::tree&);
-};
+/// Attribute to mark a function as non-returning.
+#define UTILS_NORETURN __attribute__((noreturn))
 
 
-}  // namespace cli
+/// Attribute to mark a function as pure.
+#define UTILS_PURE __attribute__((__pure__))
 
 
-#endif  // !defined(CLI_CMD_REPORT_TAP_HPP)
+/// Attribute to mark an entity as unused.
+#define UTILS_UNUSED __attribute__((__unused__))
+
+
+/// Macro to mark a parameter as unused.
+///
+/// This macro has to be called on the name of a parameter during the
+/// definition (not declaration) of a function.  When doing so, it declares
+/// the parameter as unused to silence compiler warnings and also renames
+/// the parameter by prefixing "unused_" to it.  This is to ensure that the
+/// developer remembers to remove the call to this macro from the parameter
+/// when he actually starts using it.
+///
+/// \param name The name of the function parameter to mark as unused.
+#define UTILS_UNUSED_PARAM(name) unused_ ## name UTILS_UNUSED
+
+
+#endif  // !defined(UTILS_DEFS_HPP)

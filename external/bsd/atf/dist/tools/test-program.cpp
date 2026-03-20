@@ -254,10 +254,7 @@ static
 void
 prepare_child(const tools::fs::path& workdir)
 {
-#if !defined(NDEBUG) && defined(__minix)
-    const int ret =
-#endif /* !defined(NDEBUG) && defined(__minix) */
-    	::setpgid(::getpid(), 0);
+    const int ret = ::setpgid(::getpid(), 0);
     assert(ret != -1);
 
     ::umask(S_IWGRP | S_IWOTH);
@@ -307,8 +304,10 @@ run_test_case_child(void* raw_params)
 
     const std::pair< int, int > user = tools::get_required_user(
         params->metadata, params->config);
-    if (user.first != -1 && user.second != -1)
+    if (user.first != -1 && user.second != -1) {
+        tools::fs::change_ownership(params->workdir, user);
         tools::user::drop_privileges(user);
+    }
 
     // The input 'tp' parameter may be relative and become invalid once
     // we change the current working directory.
@@ -667,7 +666,7 @@ impl::get_metadata(const tools::fs::path& executable,
     const tools::process::status status = child.wait();
     if (!status.exited() || status.exitstatus() != EXIT_SUCCESS)
         throw tools::parser::format_error("Test program returned failure "
-                                        "exit status for test case list");
+	    "exit status " + status.str() + " for test case list");
 
     return metadata(parser.get_tcs());
 }

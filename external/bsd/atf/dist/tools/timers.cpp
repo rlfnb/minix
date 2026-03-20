@@ -35,6 +35,9 @@ extern "C" {
 #include <cerrno>
 #include <csignal>
 #include <ctime>
+#if defined(__minix)
+#include <unistd.h>
+#endif
 
 #include "exceptions.hpp"
 #include "signals.hpp"
@@ -47,6 +50,18 @@ namespace impl = tools::timers;
 // Auxiliary functions.
 // ------------------------------------------------------------------------
 
+#if defined(__minix)
+static impl::timer* current_timer = NULL;
+static
+void
+handler(int signo __attribute__((__unused__)))
+{
+    if (current_timer) {
+        current_timer->set_fired();
+        current_timer->timeout_callback();
+    }
+}
+#else
 static
 void
 handler(const int signo __attribute__((__unused__)), siginfo_t* si,
@@ -56,14 +71,17 @@ handler(const int signo __attribute__((__unused__)), siginfo_t* si,
     timer->set_fired();
     timer->timeout_callback();
 }
+#endif
 
 // ------------------------------------------------------------------------
 // The "timer" class.
 // ------------------------------------------------------------------------
 
 struct impl::timer::impl {
+#if !defined(__minix)
     ::timer_t m_timer;
     ::itimerspec m_old_it;
+#endif
 
     struct ::sigaction m_old_sa;
     volatile bool m_fired;
@@ -76,11 +94,20 @@ struct impl::timer::impl {
 impl::timer::timer(const unsigned int seconds) :
     m_pimpl(new impl())
 {
+#if defined(__minix)
+    current_timer = this;
     struct ::sigaction sa;
     sigemptyset(&sa.sa_mask);
-#if !defined(__minix)
+    sa.sa_flags = 0;
+    sa.sa_handler = ::handler;
+    if (::sigaction(SIGALRM, &sa, &m_pimpl->m_old_sa) == -1)
+        throw tools::system_error(IMPL_NAME "::timer::timer",
+                                "Failed to set signal handler", errno);
+    ::alarm(seconds);
+#else
+    struct ::sigaction sa;
+    sigemptyset(&sa.sa_mask);
     sa.sa_flags = SA_SIGINFO;
-#endif /* !defined(__minix) */
     sa.sa_sigaction = ::handler;
     if (::sigaction(SIGALRM, &sa, &m_pimpl->m_old_sa) == -1)
         throw tools::system_error(IMPL_NAME "::timer::timer",
@@ -109,22 +136,22 @@ impl::timer::timer(const unsigned int seconds) :
         throw tools::system_error(IMPL_NAME "::timer::timer",
                                 "Failed to program timer", errno);
     }
+#endif // __minix
 }
 
 impl::timer::~timer(void)
 {
-#if !defined(NDEBUG) && defined(__minix)
     int ret;
 
-    ret =
-#endif /* !defined(NDEBUG) && defined(__minix) */
-    	::timer_delete(m_pimpl->m_timer);
+#if defined(__minix)
+    ::alarm(0);
+    current_timer = NULL;
+#else
+    ret = ::timer_delete(m_pimpl->m_timer);
     assert(ret != -1);
+#endif
 
-#if !defined(NDEBUG) && defined(__minix)
-    ret =
-#endif /* !defined(NDEBUG) && defined(__minix) */
-    	::sigaction(SIGALRM, &m_pimpl->m_old_sa, NULL);
+    ret = ::sigaction(SIGALRM, &m_pimpl->m_old_sa, NULL);
     assert(ret != -1);
 }
 

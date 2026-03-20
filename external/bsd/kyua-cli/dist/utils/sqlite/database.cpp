@@ -110,10 +110,7 @@ struct utils::sqlite::database::impl {
     close(void)
     {
         PRE(db != NULL);
-#if defined(__minix) && !defined(NDEBUG)
-        int error =
-#endif /* defined(__minix) && !defined(NDEBUG) */
-        ::sqlite3_close(db);
+        int error = ::sqlite3_close(db);
         // For now, let's consider a return of SQLITE_BUSY an error.  We should
         // not be trying to close a busy database in our code.  Maybe revisit
         // this later to raise busy errors as exceptions.

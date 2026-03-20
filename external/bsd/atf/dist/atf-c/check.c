@@ -101,10 +101,7 @@ cleanup_tmpdir(const atf_fs_path_t *dir, const atf_fs_path_t *outfile,
     }
 
     {
-#if defined(__minix) && !defined(NDEBUG)
-        atf_error_t err =
-#endif /* defined(__minix) && !defined(NDEBUG) */
-        atf_fs_rmdir(dir);
+        atf_error_t err = atf_fs_rmdir(dir);
         INV(!atf_is_error(err));
     }
 }
@@ -471,10 +468,7 @@ atf_check_exec_array(const char *const *argv, atf_check_result_t *r)
 
     err = atf_check_result_init(r, argv, &dir);
     if (atf_is_error(err)) {
-#if defined(__minix) && !defined(NDEBUG)
-        atf_error_t err2 =
-#endif /* defined(__minix) && !defined(NDEBUG) */
-        atf_fs_rmdir(&dir);
+        atf_error_t err2 = atf_fs_rmdir(&dir);
         INV(!atf_is_error(err2));
         goto out;
     }

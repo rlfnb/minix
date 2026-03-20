@@ -103,7 +103,6 @@ const int atf_process_stream_type_inherit = 3;
 const int atf_process_stream_type_redirect_fd = 4;
 const int atf_process_stream_type_redirect_path = 5;
 
-#if defined(__minix) && !defined(NDEBUG)
 static
 bool
 stream_is_valid(const atf_process_stream_t *sb)
@@ -114,7 +113,6 @@ stream_is_valid(const atf_process_stream_t *sb)
            (sb->m_type == atf_process_stream_type_redirect_fd) ||
            (sb->m_type == atf_process_stream_type_redirect_path);
 }
-#endif /* defined(__minix) && !defined(NDEBUG) */
 
 atf_error_t
 atf_process_stream_init_capture(atf_process_stream_t *sb)
@@ -606,10 +604,7 @@ do_exec(void *v)
     if (ea->m_prehook != NULL)
         ea->m_prehook();
 
-#if defined(__minix) && !defined(NDEBUG)
-    const int ret =
-#endif /* defined(__minix) && !defined(NDEBUG) */
-    const_execvp(atf_fs_path_cstring(ea->m_prog), ea->m_argv);
+    const int ret = const_execvp(atf_fs_path_cstring(ea->m_prog), ea->m_argv);
     const int errnocopy = errno;
     INV(ret == -1);
     fprintf(stderr, "exec(%s) failed: %s\n",
@@ -626,7 +621,7 @@ atf_process_exec_array(atf_process_status_t *s,
                        void (*prehook)(void))
 {
     atf_error_t err;
-    atf_process_child_t c = { .m_pid = 0, .m_stdout = 1, .m_stderr = 2 }; /* MINIX: Complain in -O3 */
+    atf_process_child_t c;
     struct exec_args ea = { prog, argv, prehook };
 
     PRE(outsb == NULL ||

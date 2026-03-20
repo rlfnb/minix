@@ -272,10 +272,7 @@ datetime::timestamp::now(void)
 
     ::timeval data;
     {
-#if defined(__minix) && !defined(NDEBUG)
-        const int ret =
-#endif /* defined(__minix) && !defined(NDEBUG) */
-        ::gettimeofday(&data, NULL);
+        const int ret = ::gettimeofday(&data, NULL);
         INV(ret != -1);
     }
 

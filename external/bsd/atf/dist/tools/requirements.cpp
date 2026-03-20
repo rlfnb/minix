@@ -149,10 +149,6 @@ static
 std::string
 check_memory(const std::string& raw_memory)
 {
-#if defined(__minix)
-    const char* e = std::strerror(errno);
-    return "Failed to get sysctl(hw.usermem64) value: " + std::string(e);
-#else
     const int64_t needed = tools::text::to_bytes(raw_memory);
 
     int64_t available;
@@ -168,7 +164,6 @@ check_memory(const std::string& raw_memory)
             ", available " + tools::text::to_string(available);
     } else
         return "";
-#endif /* !defined(__minix) */
 }
 
 static

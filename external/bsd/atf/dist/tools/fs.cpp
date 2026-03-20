@@ -258,7 +258,7 @@ retry_unmount:
     if (minix_umount(abs_path.c_str(), 0) == -1) {
 #else
     if (unmount(abs_path.c_str(), 0) == -1) {
-#endif /* defined(__minix) */
+#endif
         if (errno == EBUSY && retries > 0) {
             retries--;
             ::sleep(retry_delay_in_seconds);
@@ -687,6 +687,17 @@ impl::rmdir(const path& p)
     }
 }
 
+void
+impl::change_ownership(const path& p, const std::pair < int, int >& user)
+{
+    if (::chown(p.c_str(), user.first, user.second) == -1) {
+        std::stringstream ss;
+        ss << IMPL_NAME "::chown(" << p.str() << ", " << user.first << ", "
+           << user.second << ")";
+        throw tools::system_error(ss.str(), "chown(2) failed", errno);
+    }
+}
+
 impl::path
 impl::change_directory(const path& dir)
 {
@@ -711,11 +722,17 @@ impl::cleanup(const path& p)
 impl::path
 impl::get_current_dir(void)
 {
-    std::auto_ptr< char > cwd;
-    cwd.reset(getcwd(NULL, 0));
-    if (cwd.get() == NULL)
+    char *cwd = getcwd(NULL, 0);
+    if (cwd == NULL)
         throw tools::system_error(IMPL_NAME "::get_current_dir()",
                                 "getcwd() failed", errno);
 
-    return path(cwd.get());
+    try {
+        impl::path p(cwd);
+        free(cwd);
+        return p;
+    } catch(...) {
+        free(cwd);
+        throw;
+    }
 }

@@ -7,7 +7,7 @@
 
 ##### Default values
 CFLAGS+=	${COPTS}
-MKDEP_SUFFIXES?=	.o .lo .d
+MKDEP_SUFFIXES?=	.o .o .d
 
 # Override these:
 MKDEP:=		${HOST_MKDEP}
@@ -25,7 +25,7 @@ CLEANFILES+=	${_YHLSRCS}
 .endif	# defined(HOSTLIB)
 
 .if !empty(SRCS:N*.h:N*.sh)
-OBJS+=		${SRCS:N*.h:N*.sh:R:S/$/.lo/g}
+OBJS+=		${SRCS:N*.h:N*.sh:R:S/$/.o/g}
 .endif
 
 .if defined(OBJS) && !empty(OBJS)
@@ -46,8 +46,10 @@ realall: lib${HOSTLIB}.a
 CLEANFILES+= a.out [Ee]rrs mklog core *.core lib${HOSTLIB}.a ${OBJS}
 
 beforedepend:
+CC:=		${HOST_CC:Ucc}
+CXX:=		${HOST_CXX:Uc++}
 CFLAGS:=	${HOST_CFLAGS}
-CPPFLAGS:=	${HOST_CPPFLAGS}
+CPPFLAGS:=	${HOST_CPPFLAGS:N-Wp,-iremap,*}
 
 ##### Pull in related .mk logic
 .include <bsd.obj.mk>

@@ -106,7 +106,7 @@ SRCS+=  \
 	vm_set_priv.c \
 	vm_update.c
 
-.if ${MKPCI} != "no"
+.if ${MKPCI:Uno} != "no"
 SRCS+=	pci_attr_r16.c \
 	pci_attr_r32.c \
 	pci_attr_r8.c \

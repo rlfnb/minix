@@ -8,7 +8,7 @@ CPPFLAGS+= -I${NETBSDSRCDIR}/minix
 CPPFLAGS+= -I${NETBSDSRCDIR}/minix/fs
 CPPFLAGS+= -I${NETBSDSRCDIR}/minix/servers
 
-DPADD+=	${LIBVTREEFS} ${LIBFSDRIVER}
-LDADD+=	-lvtreefs -lfsdriver
+DPADD+=	${LIBVTREEFS} ${LIBFSDRIVER} ${LIBPCI}
+LDADD+=	-lvtreefs -lfsdriver -lpci
 
 .include <minix.service.mk>

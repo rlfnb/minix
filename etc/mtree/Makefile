@@ -15,7 +15,7 @@ EXTRA_DIST_FILES+=	${.CURDIR}/Minix.libstdcxx
 EXTRA_DIST_FILES+=	${.CURDIR}/Minix.libcxx
 .endif
 
-.if ${MKBITCODE} == "yes"
+.if ${MKBITCODE:Uno} == "yes"
 EXTRA_DIST_FILES+=	${.CURDIR}/Minix.bitcode
 .endif
 
@@ -50,7 +50,7 @@ EXTRA_DIST_FILES+=	NetBSD.dist.tests.compat
 EXTRA_DIST_FILES+=	${.CURDIR}/NetBSD.dist.dtrace
 .endif
 
-.if ${MKEXTSRC} != "no"
+.if ${MKEXTSRC:Uno} != "no"
 EXTRA_DIST_FILES+=	${.CURDIR}/NetBSD.dist.extsrc
 .endif
 

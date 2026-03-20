@@ -42,13 +42,13 @@ MAKETARS_FLAGS=
 .if ${MKX11} != "no"
 MAKESRCTARS_X11_FLAGS=	-x ${X11SRCDIR}
 .endif
-.if ${MKEXTSRC} != "no"
+.if ${MKEXTSRC:Uno} != "no"
 MAKESRCTARS_EXTSRC_FLAGS=	-y ${EXTSRCSRCDIR}
 .endif
 .if ${MKX11} != "no"
 MAKEFLIST_X11_FLAGS=	,x
 .endif
-.if ${MKEXTSRC} != "no"
+.if ${MKEXTSRC:Uno} != "no"
 MAKEFLIST_EXTSRC_FLAGS=	,ext
 .endif
 MAKEFLIST_FLAGS=	-L base${MAKEFLIST_X11_FLAGS}${MAKEFLIST_EXTSRC_FLAGS}
@@ -164,6 +164,8 @@ clean_METALOG: .PHONY ${METALOG}.sanitised
 makeflist: .PHONY .PRECIOUS check_DESTDIR
 	${SETSCMD} ./makeflist ${MAKEFLIST_FLAGS}
 
+CHECKFLIST_FLAGS?=
+CHECKFLIST_FLAGS+= -e -m
 checkflist: .PRECIOUS .PHONY check_DESTDIR sanitise_METALOG
 	${SETSCMD} ${.CURDIR}/checkflist \
 	    ${MAKEFLIST_FLAGS} ${CHECKFLIST_FLAGS} ${METALOG.unpriv}

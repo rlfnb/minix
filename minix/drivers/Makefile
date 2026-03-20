@@ -1,6 +1,6 @@
 .include <bsd.own.mk>
 
-.if ${MKIMAGEONLY} == "no"
+.if ${MKIMAGEONLY:Uno} == "no"
 SUBDIR+=	audio
 SUBDIR+=	clock
 SUBDIR+=	eeprom
@@ -14,7 +14,7 @@ SUBDIR+=	system
 SUBDIR+=	usb
 SUBDIR+=	video
 SUBDIR+=	vmm_guest
-.endif # ${MKIMAGEONLY} == "no"
+.endif # ${MKIMAGEONLY:Uno} == "no"
 
 # The following folders contain drivers which are always required
 SUBDIR+=	bus

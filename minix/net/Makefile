@@ -1,8 +1,8 @@
 .include <bsd.own.mk>
 
-.if ${MKIMAGEONLY} == "no"
+.if ${MKIMAGEONLY:Uno} == "no"
 SUBDIR+=	lwip
 SUBDIR+=	uds
-.endif # ${MKIMAGEONLY} == "no"
+.endif # ${MKIMAGEONLY:Uno} == "no"
 
 .include <bsd.subdir.mk>

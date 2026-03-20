@@ -5,7 +5,7 @@
  * All rights reserved.
  *
  * This code is derived from software contributed to The NetBSD Foundation
- * by Martin Schütte.
+ * by Martin Schï¿½tte.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -41,7 +41,7 @@
  * implements the TLS init and handshake callbacks with all required
  * checks from http://tools.ietf.org/html/draft-ietf-syslog-transport-tls-13
  *
- * Martin Schütte
+ * Martin Schï¿½tte
  */
 
 #include <sys/cdefs.h>
@@ -105,12 +105,15 @@ get_dh1024(void)
 		0x88,0xEC,0xA6,0xBA,0x9F,0x4F,0x85,0x43 };
 	static const unsigned char dh1024_g[]={ 0x02 };
 	DH *dh;
+	BIGNUM *p, *g;
 
 	if ((dh=DH_new()) == NULL)
 		return NULL;
-	dh->p = BN_bin2bn(dh1024_p, sizeof(dh1024_p), NULL);
-	dh->g = BN_bin2bn(dh1024_g, sizeof(dh1024_g), NULL);
-	if ((dh->p == NULL) || (dh->g == NULL)) {
+	p = BN_bin2bn(dh1024_p, sizeof(dh1024_p), NULL);
+	g = BN_bin2bn(dh1024_g, sizeof(dh1024_g), NULL);
+	if (p == NULL || g == NULL || !DH_set0_pqg(dh, p, NULL, g)) {
+		BN_free(p);
+		BN_free(g);
 		DH_free(dh);
 		return NULL;
 	}

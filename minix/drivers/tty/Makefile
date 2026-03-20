@@ -1,6 +1,6 @@
 .include <bsd.own.mk>
 
-.if ${MKIMAGEONLY} == "no"
+.if ${MKIMAGEONLY:Uno} == "no"
 SUBDIR+=	pty
 .endif # ${MACHINE_ARCH} == "i386"
 

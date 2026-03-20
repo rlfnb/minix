@@ -99,7 +99,7 @@
 #   do-build:        builds and installs the entire system.
 #   do-x11:          builds and installs X11 if ${MKX11} != "no"; either
 #                    X11R7 from src/external/mit/xorg 
-#   do-extsrc:       builds and installs extsrc if ${MKEXTSRC} != "no".
+#   do-extsrc:       builds and installs extsrc if ${MKEXTSRC:Uno} != "no".
 #   do-obsolete:     installs the obsolete sets (for the postinstall-* targets).
 #
 
@@ -249,7 +249,7 @@ BUILDTARGETS+=	do-compat-lib
 BUILDTARGETS+=	do-x11
 .endif
 BUILDTARGETS+=	do-build
-.if ${MKEXTSRC} != "no"
+.if ${MKEXTSRC:Uno} != "no"
 BUILDTARGETS+=	do-extsrc
 .endif
 
@@ -531,7 +531,7 @@ do-x11: .PHONY .MAKE
 .endif
 
 do-extsrc: .PHONY .MAKE
-.if ${MKEXTSRC} != "no"
+.if ${MKEXTSRC:Uno} != "no"
 	${MAKEDIRTARGET} extsrc build
 .else
 	@echo "MKEXTSRC is not enabled"

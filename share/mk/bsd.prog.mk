@@ -1,4 +1,4 @@
-#	$NetBSD: bsd.prog.mk,v 1.292 2015/06/07 15:04:28 matt Exp $
+#	$NetBSD: bsd.prog.mk,v 1.341.2.3 2024/02/24 13:06:22 martin Exp $
 #	@(#)bsd.prog.mk	8.2 (Berkeley) 4/2/94
 
 .ifndef HOSTPROG
@@ -6,7 +6,16 @@
 .include <bsd.init.mk>
 .include <bsd.shlib.mk>
 .include <bsd.gcc.mk>
+.include <bsd.sanitizer.mk>
+.if defined(__MINIX)
 .include <minix.gcov.mk>
+.endif
+
+##### Sanitizer specific flags.
+
+CFLAGS+=	${SANITIZERFLAGS} ${LIBCSANITIZERFLAGS}
+CXXFLAGS+=	${SANITIZERFLAGS} ${LIBCSANITIZERFLAGS}
+LDFLAGS+=	${SANITIZERFLAGS}
 
 #
 # Definitions and targets shared among all programs built by a single
@@ -33,30 +42,26 @@ CLEANFILES+= a.out [Ee]rrs mklog core *.core .gdbinit
 CLEANFILES+=strings
 .c.o:
 	${CC} -E ${CPPFLAGS} ${CFLAGS} ${.IMPSRC} | xstr -c -
-	@${CC} ${CPPFLAGS} ${CFLAGS} -c x.c -o ${.TARGET}
-.if defined(CTFCONVERT)
-	${CTFCONVERT} ${CTFFLAGS} ${.TARGET}
-.endif
+	@${CC} ${CPPFLAGS} ${CFLAGS} -c x.c ${OBJECT_TARGET}
+	${CTFCONVERT_RUN}
 	@rm -f x.c
 
 .cc.o .cpp.o .cxx.o .C.o:
 	${CXX} -E ${CPPFLAGS} ${CXXFLAGS} ${.IMPSRC} | xstr -c -
-	@mv -f x.c x.cc
-	@${CXX} ${CPPFLAGS} ${CXXFLAGS} -c x.cc -o ${.TARGET}
-.if defined(CTFCONVERT)
-	${CTFCONVERT} ${CTFFLAGS} ${.TARGET}
-.endif
+	@${MV} x.c x.cc
+	@${CXX} ${CPPFLAGS} ${CXXFLAGS} -c x.cc ${OBJECT_TARGET}
+	${CTFCONVERT_RUN}
 	@rm -f x.cc
 .endif
 
-.if defined(MKPIE) && (${MKPIE} != "no")
+.if defined(MKPIE) && (${MKPIE} != "no") && !defined(NOPIE)
 CFLAGS+=	${PIE_CFLAGS}
 AFLAGS+=	${PIE_AFLAGS}
-LDFLAGS+=	${PIE_LDFLAGS}
+LDFLAGS+=	${"${LDSTATIC.${.TARGET}}" == "-static" :? : ${PIE_LDFLAGS}}
 .endif
 
 CFLAGS+=	${COPTS}
-.if defined(MKDEBUG) && (${MKDEBUG} != "no")
+.if ${MKDEBUG:Uno} != "no" && !defined(NODEBUG)
 CFLAGS+=	-g
 .endif
 OBJCFLAGS+=	${OBJCOPTS}
@@ -66,7 +71,7 @@ MKDEP_SUFFIXES?=	.o .ln .d
 .if (${MKCTF:Uno} != "no") && (${CFLAGS:M-g} != "")
 CTFFLAGS+= -g
 CTFMFLAGS+= -g
-.if defined(HAVE_GCC) && ${HAVE_GCC} >= 48
+.if defined(HAVE_GCC)
 #CFLAGS+=-gdwarf-2
 .endif
 .endif
@@ -100,36 +105,39 @@ LIBCRTI=	${DESTDIR}/usr/lib/${MLIBDIR:D${MLIBDIR}/}crti.o
 #	etc..
 #	NB:	If you are a library here, add it in bsd.README
 
-.for _lib in \
+_LIBLIST=\
 	archive \
 	asn1 \
 	atf_c \
 	atf_cxx \
 	bind9 \
+	blocklist \
 	bluetooth \
 	bsdmalloc \
 	bz2 \
 	c \
 	c_pic \
+	cbor \
 	com_err \
 	compat \
 	crypt \
 	crypto \
-	crypto_idea \
-	crypto_mdc2 \
-	crypto_rc5 \
 	curses \
-	dbm \
+	cxx \
 	des \
 	dns \
 	edit \
 	event \
+	event_openssl \
+	event_pthreads \
+	execinfo \
 	expat \
 	fetch \
 	fl \
+	fido2 \
 	form \
-	g2c \
 	gcc \
+	gnuctf \
 	gnumalloc \
 	gssapi \
 	hdb \
@@ -151,54 +159,53 @@ LIBCRTI=	${DESTDIR}/usr/lib/${MLIBDIR:D${MLIBDIR}/}crti.o
 	ldap \
 	ldap_r \
 	lua \
-	lwres \
 	m \
 	magic \
 	menu \
+	netpgpverify \
+	ns \
 	objc \
 	ossaudio \
+	panel \
 	pam \
 	pcap \
 	pci \
-	pmc \
 	posix \
 	pthread \
-	pthread_dbg \
 	puffs \
 	quota \
 	radius \
+	refuse \
 	resolv \
 	rmt \
 	roken \
 	rpcsvc \
 	rt \
 	rump \
-	rumpfs_cd9660fs \
+	rumpfs_cd9660 \
 	rumpfs_efs \
 	rumpfs_ext2fs \
 	rumpfs_ffs \
 	rumpfs_hfs \
 	rumpfs_lfs \
-	rumpfs_msdosfs \
+	rumpfs_msdos \
 	rumpfs_nfs \
 	rumpfs_ntfs \
 	rumpfs_syspuffs \
 	rumpfs_tmpfs \
 	rumpfs_udf \
-	rumpfs_ufs \
 	rumpuser \
 	saslc \
 	skey \
 	sl \
 	sqlite3 \
-	ss \
 	ssh \
 	ssl \
-	ssp \
-	stdcxx \
-	supcxx \
+	stdc++ \
+	supc++ \
 	terminfo \
 	tre \
+	unbound \
 	usbhid \
 	util \
 	wind \
@@ -206,61 +213,52 @@ LIBCRTI=	${DESTDIR}/usr/lib/${MLIBDIR:D${MLIBDIR}/}crti.o
 	y \
 	z 
 
+
+# MINIX libraries
+.if defined(__MINIX)
+_LIBLIST+= \
+	audiodriver bdev blockdriver chardriver clkconf ddekit \
+	ddekit_usb_client ddekit_usb_server devman elf exec fsdriver \
+	gpio hgfs i2cdriver inputdriver lwip minc minixfs mthread \
+	netdriver sffs sockdriver sockevent sys timers usb vboxfs \
+	virtio vtreefs
+.endif # defined(__MINIX)
+.for _lib in ${_LIBLIST}
 .ifndef LIB${_lib:tu}
 LIB${_lib:tu}=	${DESTDIR}/usr/lib/lib${_lib:S/xx/++/:S/atf_c/atf-c/}.a
 .MADE:		${LIB${_lib:tu}}	# Note: ${DESTDIR} will be expanded
 .endif
 .endfor
 
-# Minix libraries
-.for _lib in \
-	audiodriver \
-	bdev \
-	blockdriver \
-	chardriver \
-	clkconf \
-	ddekit \
-	ddekit_usb_client \
-	ddekit_usb_server \
-	devman \
-	elf \
-	exec \
-	fsdriver \
-	gpio \
-	hgfs \
-	i2cdriver \
-	inputdriver \
-	lwip \
-	minc \
-	minixfs \
-	mthread \
-	netdriver \
-	sffs \
-	sockdriver \
-	sockevent \
-	sys \
-	timers \
-	usb \
-	vboxfs \
-	virtio \
-	vtreefs
-.ifndef LIB${_lib:tu}
-LIB${_lib:tu}=	${DESTDIR}/usr/lib/lib${_lib:S/xx/++/:S/atf_c/atf-c/}.a
-.MADE:		${LIB${_lib:tu}}	# Note: ${DESTDIR} will be expanded
+.if (${MKKERBEROS} != "no")
+# Kerberos5 applications
+LIBKRB5_LDADD+= -lkrb5 -lcom_err \
+	-lhx509 -lcrypto -lasn1 \
+	-lwind -lheimbase -lcom_err -lroken \
+	-lcrypt -lutil
+LIBKRB5_DPADD+= ${LIBKRB5} ${LIBCOM_ERR} \
+	${LIBHX509} ${LIBCRYPTO} ${LIBASN1} \
+	${LIBWIND} ${LIBHEIMBASE} ${LIBCOM_ERR} ${LIBROKEN} \
+	${LIBCRYPT} ${LIBUTIL}
+LIBGSSAPI_LDADD+= -lgssapi -lheimntlm ${LIBKRB5_LDADD}
+LIBGSSAPI_DPADD+= ${LIBGSSAPI} ${LIBHEIMNTLM} ${LIBKRB5_DPADD}
 .endif
-.endfor
+
+.if (${MKLDAP} != "no")
+LIBLDAP_LDADD+= -lldap -llber ${LIBGSSAPI_LDADD} -lssl -lcrypto 
+LIBLDAP_DPADD+= ${LIBLDAP} ${LIBLBER} ${LIBGSSAPI_DPADD} ${LIBSSL} ${LIBCRYPTO}
+.endif
 
 # PAM applications, if linked statically, need more libraries
 .if (${MKPIC} == "no")
-.if (${MKCRYPTO} != "no")
 PAM_STATIC_LDADD+= -lssh
 PAM_STATIC_DPADD+= ${LIBSSH}
-.endif
 .if (${MKKERBEROS} != "no")
 PAM_STATIC_LDADD+= -lkafs -lkrb5 -lhx509 -lwind -lasn1 \
-	-lroken -lcom_err -lheimbase -lcrypto
+	-lroken -lcom_err -lheimbase -lcrypto -lsqlite3 -lm
 PAM_STATIC_DPADD+= ${LIBKAFS} ${LIBKRB5} ${LIBHX509} ${LIBWIND} ${LIBASN1} \
-	${LIBROKEN} ${LIBCOM_ERR} ${LIBHEIMBASE} ${LIBCRYPTO}
+	${LIBROKEN} ${LIBCOM_ERR} ${LIBHEIMBASE} ${LIBCRYPTO} ${LIBSQLITE3} \
+	${LIBM}
 .endif
 .if (${MKSKEY} != "no")
 PAM_STATIC_LDADD+= -lskey
@@ -273,57 +271,35 @@ PAM_STATIC_LDADD=
 PAM_STATIC_DPADD=
 .endif
 
-.if defined(__MINIX) && ${MACHINE_ARCH} == "earm"
-# LSC: On ARM, when compiling statically, with gcc, lgcc_eh is required
-LDFLAGS+= ${${ACTIVE_CC} == "gcc":? -lgcc_eh:}
-.endif # defined(__MINIX) && ${MACHINE_ARCH} == "earm"
-
 #	NB:	If you are a library here, add it in bsd.README
-.for _lib in \
-	FS \
-	GL \
-	GLU \
-	ICE \
-	SM \
-	X11 \
-	XTrap \
-	Xau \
-	Xaw \
-	Xdmcp \
-	Xext \
-	Xfont \
-	Xft \
-	Xi \
-	Xinerama \
-	Xmu \
-	Xmuu \
-	Xpm \
-	Xrandr \
-	Xrender \
-	Xss \
-	Xt \
-	Xtst \
-	Xv \
-	Xxf86dga \
-	Xxf86misc \
-	Xxf86vm \
-	dps \
-	fntstubs \
-	fontcache \
-	fontconfig \
-	fontenc \
-	freetype \
-	lbxutil \
-	xkbfile
+#	This list is sorted with -f so that it matches the order in bsd.README
+_X11LIBLIST= dps fntstubs fontcache fontconfig fontenc freetype FS GL GLU \
+    ICE lbxutil SM X11 X11_xcb Xau Xaw xcb xcvt Xdmcp Xext Xfont Xfont2 Xft Xi \
+    Xinerama xkbfile Xmu Xmuu Xpm Xrandr Xrender Xss Xt XTrap Xtst Xv Xxf86dga \
+    Xxf86misc Xxf86vm Xcomposite Xdamage Xfixes
+_XCBLIBLIST= \
+    atom aux composite damage dpms dri2 dri3 event glx icccm image keysyms \
+    present property randr record render_util render reply res screensaver \
+    shape shm sync xf86dri xfixes xinerama xinput xkb xtest xv xvmc
+
+# Ugly one-offs
+LIBX11_XCB=	${DESTDIR}${X11USRLIBDIR}/libX11-xcb.a
+LIBXCB=	${DESTDIR}${X11USRLIBDIR}/libxcb.a
+
+.for _lib in ${_X11LIBLIST}
 .ifndef LIB${_lib:tu}
 LIB${_lib:tu}=	${DESTDIR}${X11USRLIBDIR}/lib${_lib}.a
 .MADE:		${LIB${_lib:tu}}	# Note: ${DESTDIR} will be expanded
 .endif
 .endfor
 
-# Ugly one-offs
-LIBX11_XCB=	${DESTDIR}${X11USRLIBDIR}/libX11-xcb.a
-LIBXCB=	${DESTDIR}${X11USRLIBDIR}/libxcb.a
+# These ones have "_" in the variable name and "-" in the path.
+.for _lib in ${_XCBLIBLIST}
+.ifndef LIBXCB_${_lib:tu}
+LIBXCB_${_lib:tu}=	${DESTDIR}${X11USRLIBDIR}/libxcb-${_lib}.a
+.MADE:		${LIBXCB_${_lib:tu}}	# Note: ${DESTDIR} will be expanded
+.endif
+.endfor
 
 .if defined(RESCUEDIR)
 CPPFLAGS+=	-DRESCUEDIR=\"${RESCUEDIR}\"
@@ -370,15 +346,15 @@ _CCLINKFLAGS=
 
 .if defined(PROG_CXX)
 PROG=		${PROG_CXX}
-_CCLINK=	${CXX} ${_CCLINKFLAGS}
-
 .if defined(__MINIX)
-# BJG - stack unwinding (for C++ exceptions) doesn't work on static executables when built with llvm.
+# C++ exception stack unwinding needs dynamic linking with LLVM
 LDSTATIC=	-dynamic
 .endif # defined(__MINIX)
+_CCLINK=	${CXX} ${_CCLINKFLAGS}
 .endif
 
 .if defined(RUMPPRG)
+CPPFLAGS+=	-D_KERNTYPES
 PROG=			${RUMPPRG}
 . ifndef CRUNCHEDPROG
 .  if (${MKRUMP} != "no")
@@ -399,8 +375,8 @@ SRCS.rump.${PROG}=	${PROG}.c ${PROG}_rumpops.c ${RUMPSRCS}
 .  endif
 .   if (${MKRUMP} != "no")
 DPSRCS+=		${PROG}_rumpops.c ${RUMPSRCS}
-LDADD.rump.${PROG}+=	-lrumpclient
-DPADD.rump.${PROG}+=	${LIBRUMPCLIENT}
+LDADD.rump.${PROG}+=	${LDADD.rump} -lrumpclient
+DPADD.rump.${PROG}+=	${DPADD.rump} ${LIBRUMPCLIENT}
 MAN.rump.${PROG}=	# defined but feeling empty
 _RUMPINSTALL.rump.${PROG}=# defined
 .   endif
@@ -445,6 +421,10 @@ PROGS=		${PROG}
 PROGDO.${_lib}!=	cd "${_dir}" && ${PRINTOBJDIR}
 .MAKEOVERRIDES+=PROGDO.${_lib}
 .endif
+.if defined(PROGDPLIBSSTATIC)
+DPADD+=		${PROGDO.${_lib}}/lib${_lib}.a
+LDADD+=		${PROGDO.${_lib}}/lib${_lib}.a
+.else
 LDADD+=		-L${PROGDO.${_lib}} -l${_lib}
 .if exists(${PROGDO.${_lib}}/lib${_lib}_pic.a)
 DPADD+=		${PROGDO.${_lib}}/lib${_lib}_pic.a
@@ -453,8 +433,13 @@ DPADD+=		${PROGDO.${_lib}}/lib${_lib}.so
 .else
 DPADD+=		${PROGDO.${_lib}}/lib${_lib}.a
 .endif
+.endif
 .endfor
 .endif									# }
+
+LDADD+=${LDADD_AFTER}
+DPADD+=${DPADD_AFTER}
+
 #
 # Per-program definitions and targets.
 #
@@ -477,29 +462,26 @@ _CCLINK.${_P}=	${CXX} ${_CCLINKFLAGS}
 .endfor
 
 # Language-independent definitions.
-.if defined(__MINIX)
-.if ${USE_BITCODE:Uno} == "yes"
-CFLAGS+= -flto
-.endif # ${USE_BITCODE:Uno} == "yes"
-
-.if ${USE_BITCODE:Uyes} == "no"
-#LSC Gold linker seems to require the library directory to be set up if
-#    a sysroot parameter has been given.
-LDFLAGS+= -L ${DESTDIR}/usr/lib
-.endif # ${USE_BITCODE:U} == "no"
-.endif # defined(__MINIX)
-
 .for _P in ${PROGS} ${PROGS_CXX}					# {
 
 BINDIR.${_P}?=		${BINDIR}
 PROGNAME.${_P}?=	${_P}
 
-.if ${MKDEBUG} != "no" && !commands(${_P})
+.if ${MKDEBUG:Uno} != "no" && !defined(NODEBUG) && !commands(${_P}) && \
+    empty(SRCS.${_P}:M*.sh)
 _PROGDEBUG.${_P}:=	${PROGNAME.${_P}}.debug
 .endif
 
+# paxctl specific arguments
+
 .if defined(PAXCTL_FLAGS)
 PAXCTL_FLAGS.${_P}?= ${PAXCTL_FLAGS}
+.endif
+
+.if ${MKSANITIZER:Uno} == "yes" && \
+	(${USE_SANITIZER} == "address" || ${USE_SANITIZER} == "thread" || \
+	${USE_SANITIZER} == "memory")
+PAXCTL_FLAGS.${_P}= +a
 .endif
 
 ##### PROG specific flags.
@@ -507,7 +489,10 @@ PAXCTL_FLAGS.${_P}?= ${PAXCTL_FLAGS}
 _DPADD.${_P}=		${DPADD}    ${DPADD.${_P}}
 _LDADD.${_P}=		${LDADD}    ${LDADD.${_P}}
 _LDFLAGS.${_P}=		${LDFLAGS}  ${LDFLAGS.${_P}}
+.if ${MKSANITIZER} != "yes"
+# Sanitizers don't support static build.
 _LDSTATIC.${_P}=	${LDSTATIC} ${LDSTATIC.${_P}}
+.endif
 
 ##### Build and install rules
 .if !empty(_APPEND_SRCS:M[Yy][Ee][Ss])
@@ -579,47 +564,6 @@ CLEANFILES+=	${_P}.d
 
 ${OBJS.${_P}} ${LOBJS.${_P}}: ${DPSRCS}
 
-.if defined(__MINIX) && ${USE_BITCODE:Uno} == "yes"
-CLEANFILES+= ${_P}.opt.bcl ${_P}.bcl ${_P}.bcl.o
-
-OPTFLAGS.${_P}?= ${OPTFLAGS}
-BITCODE_LD_FLAGS_1ST.${_P}+= ${BITCODE_LD_FLAGS_1ST}
-BITCODE_LD_FLAGS_2ND.${_P}+= ${BITCODE_LD_FLAGS_2ND}
-
-${_P}.bcl: .gdbinit ${LIBCRT0} ${LIBCRTI} ${OBJS.${_P}} ${LIBC} ${LIBCRTBEGIN} \
-    ${LIBCRTEND} ${_DPADD.${_P}}
-	${_MKTARGET_LINK}
-	${_CCLINK.${_P}} \
-		-o ${.TARGET} \
-		-nostartfiles \
-		-L${DESTDIR}/usr/lib/bc \
-		${OBJS.${_P}} ${LLVM_LINK_ARGS} ${_LDADD.${_P}:N-shared} \
-		${_LDSTATIC.${_P}} ${_PROGLDOPTS} \
-		-Wl,-r \
-		${BITCODE_LD_FLAGS_1ST.${_P}} \
-		-Wl,-plugin-opt=emit-llvm
-
-${_P}.opt.bcl: ${_P}.bcl ${LLVM_PASS}
-	${_MKTARGET_LINK}
-	${OPT} ${OPTFLAGS.${_P}} -o ${.TARGET} ${_P}.bcl
-
-${_P}.bcl.o: ${_P}.opt.bcl
-	${_MKTARGET_LINK}
-	${LLC} -O1 -march=x86 -mcpu=i586 -filetype=obj -o ${.TARGET} ${.ALLSRC}
-
-${_P}: ${_P}.bcl.o
-.if !commands(${_P})
-	${_MKTARGET_LINK}
-	${_CCLINK.${_P}} \
-		${_LDFLAGS.${_P}} \
-		-L${DESTDIR}/usr/lib \
-		${_LDSTATIC.${_P}} -o ${.TARGET} \
-		${.TARGET}.bcl.o ${_PROGLDOPTS} ${_LDADD.${_P}} \
-		${BITCODE_LD_FLAGS_2ND.${_P}} \
-		-Wl,--allow-multiple-definition
-.endif	# !commands(${_P})
-
-.else
 ${_P}: .gdbinit ${LIBCRT0} ${LIBCRTI} ${OBJS.${_P}} ${LIBC} ${LIBCRTBEGIN} \
     ${LIBCRTEND} ${_DPADD.${_P}}
 .if !commands(${_P})
@@ -637,12 +581,11 @@ ${_P}: .gdbinit ${LIBCRT0} ${LIBCRTI} ${OBJS.${_P}} ${LIBC} ${LIBCRTBEGIN} \
 	${OBJCOPY} -R .ident ${.TARGET}
 .endif
 .endif	# !commands(${_P})
-.endif  # defined(__MINIX) && ${USE_BITCODE:Uno} == "yes"
 .endif	# USE_COMBINE
 
 ${_P}.ro: ${OBJS.${_P}} ${_DPADD.${_P}}
 	${_MKTARGET_LINK}
-	${CC} ${LDFLAGS:N-Wl,-pie} -nostdlib -r -Wl,-dc -o ${.TARGET} ${OBJS.${_P}}
+	${CC} ${LDFLAGS:N-pie} -nostdlib -r -Wl,-dc -o ${.TARGET} ${OBJS.${_P}}
 
 .if defined(_PROGDEBUG.${_P})
 ${_PROGDEBUG.${_P}}: ${_P}
@@ -715,7 +658,11 @@ ${DESTDIR}${DEBUGDIR}${BINDIR.${_P}}/${_PROGDEBUG.${_P}}: .MADE
 lint: lint-${_P}
 lint-${_P}: ${LOBJS.${_P}}
 .if defined(LOBJS.${_P}) && !empty(LOBJS.${_P})
+.if defined(DESTDIR)
+	${LINT} ${LINTFLAGS} ${_LDFLAGS.${_P}:C/-L[  ]*/-L/Wg:M-L*} -L${DESTDIR}/usr/libdata/lint ${LOBJS.${_P}} ${_LDADD.${_P}}
+.else
 	${LINT} ${LINTFLAGS} ${_LDFLAGS.${_P}:C/-L[  ]*/-L/Wg:M-L*} ${LOBJS.${_P}} ${_LDADD.${_P}}
+.endif
 .endif
 
 .endfor # _P in ${PROGS} ${PROGS_CXX}					# }

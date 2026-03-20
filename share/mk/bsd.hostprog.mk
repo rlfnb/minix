@@ -81,7 +81,7 @@ LIBRUMPFS_TMPFS?=	/usr/lib/librumpfs_tmpfs.a
 LIBRUMPFS_UDF?=		/usr/lib/librumpfs_udf.a
 LIBRUMPFS_UFS?=		/usr/lib/librumpfs_ufs.a
 
-MKDEP_SUFFIXES?=	.lo .ln .d
+MKDEP_SUFFIXES?=	.o .ln .d
 
 # Override these:
 INSTALL:=	${INSTALL:NSTRIP=*}
@@ -105,7 +105,7 @@ DPSRCS+=	${_YHPSRCS}
 CLEANFILES+=	${_YHPSRCS}
 
 .if !empty(SRCS:N*.h:N*.sh)
-OBJS+=		${SRCS:N*.h:N*.sh:R:S/$/.lo/g}
+OBJS+=		${SRCS:N*.h:N*.sh:R:S/$/.o/g}
 LOBJS+=		${LSRCS:.c=.ln} ${SRCS:M*.c:.c=.ln}
 .endif
 
@@ -133,6 +133,8 @@ realall: ${HOSTPROG}
 CLEANFILES+= a.out [Ee]rrs mklog core *.core ${HOSTPROG} ${OBJS} ${LOBJS}
 
 beforedepend:
+CC:=		${HOST_CC:Ucc}
+CXX:=		${HOST_CXX:Uc++}
 CFLAGS:=	${HOST_CFLAGS}
 CPPFLAGS:=	${HOST_CPPFLAGS:N-Wp,-iremap,*}
 

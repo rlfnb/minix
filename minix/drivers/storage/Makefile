@@ -1,6 +1,6 @@
 .include <bsd.own.mk>
 
-.if ${MKIMAGEONLY} == "no"
+.if ${MKIMAGEONLY:Uno} == "no"
 .  if ${MACHINE_ARCH} == "i386"
 SUBDIR+=	ahci
 SUBDIR+=	fbd
@@ -13,7 +13,7 @@ SUBDIR+=	mmc
 .  endif # ${MACHINE_ARCH} == "earm"
 
 SUBDIR+=	vnd
-.endif # ${MKIMAGEONLY} == "no"
+.endif # ${MKIMAGEONLY:Uno} == "no"
 
 .if ${MACHINE_ARCH} == "i386"
 SUBDIR+=	at_wini

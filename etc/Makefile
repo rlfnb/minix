@@ -168,7 +168,7 @@ distribution: .PHONY .MAKE check_DESTDIR distrib-dirs
 . if ${MKX11} != "no"
 	${MAKEDIRTARGET} ${NETBSDSRCDIR}/external/mit/xorg distribution
 . endif
-. if ${MKEXTSRC} != "no"
+. if ${MKEXTSRC:Uno} != "no"
 	${MAKEDIRTARGET} ${NETBSDSRCDIR}/extsrc distribution
 . endif
 	${MAKEDIRTARGET} ${NETBSDSRCDIR}/distrib/sets makesetfiles

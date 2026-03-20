@@ -43,7 +43,7 @@ SUBDIR+=	libgpio
 SUBDIR+=	libi2cdriver
 .endif
 
-.if (${MKMAGIC} == "yes")
+.if (${MKMAGIC:Uno} == "yes")
 SUBDIR+=	libmagicrt
 .endif
 

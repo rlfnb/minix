@@ -61,7 +61,7 @@ SUBDIR+=	../minix/lib/libclkconf \
 		../minix/lib/libi2cdriver
 .endif
 
-.if (${MKMAGIC} == "yes")
+.if (${MKMAGIC:Uno} == "yes")
 SUBDIR+=	../minix/lib/libmagicrt
 .endif
 
@@ -170,7 +170,7 @@ SUBDIR+=        ../external/cddl/osnet/lib/libctf
 
 SUBDIR+=	../external/public-domain/xz/lib	# depends on libpthread
 
-.if (${MKCRYPTO} != "no")
+.if (${MKCRYPTO:Uno} != "no")
 SUBDIR+=	../crypto/external/bsd/netpgp/libmj
 SUBDIR+=	../crypto/external/bsd/netpgp/lib/verify # depends on libz
 .endif
@@ -195,7 +195,7 @@ SUBDIR+=	librumphijack	# depends on librumpclient and libpthread
 SUBDIR+=	libnpf		# depends on libprop
 .endif
 
-.if (${MKCRYPTO} != "no")
+.if (${MKCRYPTO:Uno} != "no")
 SUBDIR+=	../crypto/external/bsd/openssl/lib # depends on libcrypt
 .endif
 
@@ -251,7 +251,7 @@ SUBDIR+=	../external/bsd/lutok/lib	# depends on lua and libstdc++
 
 SUBDIR+=	libform		# depends on libcurses
 SUBDIR+=	libmenu		# depends on libcurses
-#SUBDIR+=	libradius	# depends on libcrypto if (${MKCRYPTO} != "no")
+#SUBDIR+=	libradius	# depends on libcrypto if (${MKCRYPTO:Uno} != "no")
 .if (${MKRUMP} != "no")
 SUBDIR+=	librump		# depends on librumpuser
 .endif
@@ -261,7 +261,7 @@ SUBDIR+=	../crypto/external/bsd/heimdal/lib	# depends on libcrypto
 							# libedit, libterminfo,
 .endif
 
-.if (${MKCRYPTO} != "no")
+.if (${MKCRYPTO:Uno} != "no")
 #SUBDIR+=	../crypto/external/bsd/openssh/lib # depends on libcrypto, libz
 SUBDIR+=	../crypto/external/bsd/netpgp/lib  # depends on libcrypto, ...
 .endif
@@ -296,7 +296,7 @@ SUBDIR+=	librumpvfs	# depends on librump
 SUBDIR+=	libpam		# depends on heimdal
 .endif
 
-.if (${MKCRYPTO} != "no")
+.if (${MKCRYPTO:Uno} != "no")
 SUBDIR+=	../crypto/external/bsd/libsaslc	# depends on heimdal, openssl
 .endif
 

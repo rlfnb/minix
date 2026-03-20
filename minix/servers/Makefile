@@ -2,7 +2,7 @@
 
 SUBDIR+=	ds input mib pm rs sched vfs vm
 
-.if ${MKIMAGEONLY} == "no"
+.if ${MKIMAGEONLY:Uno} == "no"
 SUBDIR+=	ipc is devman
 .endif
 

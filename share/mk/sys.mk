@@ -269,3 +269,4 @@ YACC.y?=	${YACC} ${YFLAGS}
 	rm -f ${.TARGET}
 	cp ${.IMPSRC} ${.TARGET}
 	chmod a+x ${.TARGET}
+

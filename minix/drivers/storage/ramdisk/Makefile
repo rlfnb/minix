@@ -54,7 +54,7 @@ dir.sysenv:=	minix/commands/sysenv
 PROGRAMS+=		umount
 dir.umount:=	minix/commands/umount
 
-.if ${MKSMALL} != "yes"
+.if ${MKSMALL:Uno} != "yes"
 RAMDISK_SMALL=		1
 .endif
 
@@ -75,7 +75,7 @@ dir.pwd_mkdb:=	usr.sbin/pwd_mkdb
 PROGRAMS+=		isofs
 dir.isofs:=	minix/fs/isofs
 
-.if ${MKSMALL} != "yes"
+.if ${MKSMALL:Uno} != "yes"
 PROGRAMS+=		ahci
 dir.ahci:=	minix/drivers/storage/ahci
 PROGRAMS+=		virtio_blk
@@ -84,7 +84,7 @@ PROGRAMS+=		ext2
 dir.ext2:=	minix/fs/ext2
 .endif
 
-.if ${MKACPI} != "no"
+.if ${MKACPI:Uno} != "no"
 RAMDISK_INC_ACPI= 1
 PROGRAMS+=		acpi
 dir.acpi:=	minix/drivers/power/acpi
